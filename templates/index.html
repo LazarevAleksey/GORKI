@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>📊 Панель управления</h2>
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-number">{{ stats.total_devices }}</div><div>Всего устройств</div></div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #2e7d32, #1b5e20);"><div class="stat-number">{{ stats.retarders }}</div><div>Замедлителей</div></div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #e65100, #bf360c);"><div class="stat-number">{{ stats.switches }}</div><div>Стрелок</div></div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #1565c0, #0d47a1);"><div class="stat-number">{{ stats.need_repair }}</div><div>Требуют ремонта</div></div>
+    </div>
+</div>
+<div class="card">
+    <h2>🏭 Горки</h2>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        {% for park in parks %}
+        <a href="/parks/{{ park.id }}" class="btn" style="background: #e3f2fd; color: #1565c0;">🏢 {{ park.name }}</a>
+        {% endfor %}
+    </div>
+</div>
+<div class="card">
+    <h2>📋 Быстрый доступ</h2>
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <a href="/retarders" class="btn btn-primary">🛑 Все замедлители</a>
+        <a href="/switches" class="btn btn-primary">🚉 Все стрелки</a>
+        <a href="/devices" class="btn btn-primary">📟 Всё оборудование</a>
+        <a href="/statistics" class="btn btn-primary">📈 Детальная статистика</a>
+    </div>
+</div>
+{% endblock %}

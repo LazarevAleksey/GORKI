@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование замедлителя{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>✏️ Редактирование замедлителя</h2>
+    <p>Инвентарный номер: <strong>{{ retarder.inv_number }}</strong></p>
+    
+    <form method="POST" style="margin-top: 20px;">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div>
+                <label>Модель *</label>
+                <select name="model" class="filter-select" style="width: 100%;" required>
+                    {% for t in retarder_types %}
+                    <option value="{{ t.name }}" {% if t.name == retarder.model %}selected{% endif %}>{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label>Высота (мм)</label>
+                <input type="number" name="height_mm" class="filter-select" style="width: 100%;" value="{{ retarder.height_mm or '' }}">
+            </div>
+            
+            <div>
+                <label>Год установки</label>
+                <input type="number" name="install_year" class="filter-select" style="width: 100%;" value="{{ retarder.install_year or '' }}">
+            </div>
+            
+            <div>
+                <label>Год последнего кап. ремонта</label>
+                <input type="number" name="last_repair_year" class="filter-select" style="width: 100%;" value="{{ retarder.last_repair_year or '' }}">
+            </div>
+            
+            <div>
+                <label>Плановый год ремонта</label>
+                <input type="number" name="planned_repair_year" class="filter-select" style="width: 100%;" value="{{ retarder.planned_repair_year or '' }}">
+            </div>
+            
+            <div>
+                <label>Наработка (тыс. срабатываний)</label>
+                <input type="number" name="total_operations" class="filter-select" style="width: 100%;" value="{{ retarder.total_operations or '' }}">
+            </div>
+            
+            <div>
+                <label>Остаточная стоимость (тыс. руб.)</label>
+                <input type="number" step="0.01" name="residual_value" class="filter-select" style="width: 100%;" value="{{ retarder.residual_value or '' }}">
+            </div>
+            
+            <div>
+                <label>Статус</label>
+                <select name="status" class="filter-select" style="width: 100%;">
+                    <option value="active" {% if retarder.status == 'active' %}selected{% endif %}>✅ В эксплуатации</option>
+                    <option value="reserve" {% if retarder.status == 'reserve' %}selected{% endif %}>📦 В запасе</option>
+                    <option value="written_off" {% if retarder.status == 'written_off' %}selected{% endif %}>❌ Списан</option>
+                </select>
+            </div>
+            
+            <div style="grid-column: span 2;">
+                <label>Примечания</label>
+                <textarea name="notes" rows="3" class="filter-select" style="width: 100%;">{{ retarder.notes or '' }}</textarea>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+            <a href="/retarder/{{ retarder.id }}" class="btn" style="background: #e0e0e0;">❌ Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Замедлитель {{ retarder.model }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>📄 Замедлитель {{ retarder.model }}</h2>
+        <a href="/retarder/{{ retarder.id }}/edit" class="btn btn-edit">✏️ Редактировать</a>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px;">
+        <div><strong>🏷️ Инвентарный номер:</strong> {{ retarder.inv_number or '—' }}</div>
+        <div><strong>🔢 Заводской номер:</strong> {{ retarder.serial_number or '—' }}</div>
+        <div><strong>🏭 Горка:</strong> {{ retarder.park_name }}</div>
+        <div><strong>📌 Номер по схеме горки:</strong> {{ retarder.tor_position or '—' }}</div>
+        <div><strong>🛑 Тормозная позиция:</strong> 
+            {% if retarder.position_number %}
+            {{ retarder.position_number }} ({{ retarder.position_type }})
+            {% else %}—{% endif %}
+        </div>
+        <div><strong>🛤️ Путь:</strong> {{ retarder.way or '—' }}</div>
+        <div><strong>⚙️ Модель:</strong> {{ retarder.model }}</div>
+        <div><strong>📏 Высота:</strong> 
+            {% if retarder.height_mm %}
+                {% if retarder.height_mm <= 600 %}🔽 низкий
+                {% elif retarder.height_mm <= 900 %}➡️ средний
+                {% else %}🔼 высокий{% endif %} ({{ retarder.height_mm }} мм)
+            {% else %}—{% endif %}
+        </div>
+        <div><strong>📅 Год установки:</strong> {{ retarder.install_year or '—' }}</div>
+        <div><strong>🔧 Последний кап. ремонт:</strong> {{ retarder.last_repair_year or '—' }}</div>
+        <div><strong>🔄 Последняя модернизация:</strong> {{ retarder.last_modernization_year or '—' }}</div>
+        <div><strong>📊 Наработка:</strong> {{ (retarder.total_operations|string + ' тыс.') if retarder.total_operations else '—' }}</div>
+        <div><strong>📈 Среднегодовая наработка:</strong> {{ (retarder.avg_usage|string + ' тыс.') if retarder.avg_usage else '—' }}</div>
+        <div><strong>📅 Плановый ремонт:</strong> 
+            <span style="color: {% if retarder.planned_repair_year and retarder.planned_repair_year < 2025 %}red{% else %}green{% endif %}">
+                {{ retarder.planned_repair_year or '—' }}
+            </span>
+        </div>
+        <div><strong>💰 Остаточная стоимость:</strong> {{ (retarder.residual_value|string + ' тыс. руб.') if retarder.residual_value else '—' }}</div>
+        <div><strong>📝 Статус:</strong>
+            <span class="badge badge-{{ retarder.status }}">
+                {% if retarder.status == 'active' %}✅ В эксплуатации
+                {% elif retarder.status == 'reserve' %}📦 В запасе
+                {% else %}❌ Списан{% endif %}
+            </span>
+        </div>
+        <div><strong>📌 Примечания:</strong> {{ retarder.notes or '—' }}</div>
+    </div>
+    
+    <div style="margin-top: 25px; display: flex; gap: 10px;">
+        <a href="/retarders" class="btn btn-primary">🔙 Назад к списку</a>
+        <a href="/retarder/{{ retarder.id }}/edit" class="btn btn-edit">✏️ Редактировать</a>
+    </div>
+</div>
+{% endblock %}

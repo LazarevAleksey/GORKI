@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ park.name }}{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>🏭 {{ park.name }}</h2>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+        <div><strong>Станция:</strong> {{ park.station or '—' }}</div>
+        <div><strong>Класс:</strong> {{ park.class or '—' }}</div>
+        <div><strong>Количество путей:</strong> {{ park.num_tracks or '—' }}</div>
+        <div><strong>Количество пучков:</strong> {{ park.num_bundles or '—' }}</div>
+        <div><strong>Система управления:</strong> {{ park.control_system or '—' }}</div>
+        <div><strong>Описание:</strong> {{ park.description or '—' }}</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>🛤️ Участки пути</h2>
+    <table class="table">
+        <thead><tr><th>Код</th><th>Название</th><th>Тип</th><th>Зона</th><th>Стрелочный</th><th>РЦ</th><th>Счёт осей</th></tr></thead>
+        <tbody>
+            {% for s in sections %}
+            <tr>
+                <td><strong>{{ s.code }}</strong></td>
+                <td>{{ s.name }}</td>
+                <td>{{ s.section_type_name or '—' }}</td>
+                <td>{{ s.zone_type_name or '—' }}</td>
+                <td>{{ '✅' if s.is_switch_section else '—' }}</td>
+                <td>{{ '✅' if s.has_track_circuit else '—' }}</td>
+                <td>{{ '✅' if s.has_axle_counter else '—' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h2>🛑 Тормозные позиции</h2>
+    <table class="table">
+        <thead><tr><th>Позиция</th><th>Тип</th><th>Макс. скорость</th><th>Кол-во замедлителей</th></tr></thead>
+        <tbody>
+            {% for bp in brake_positions %}
+            <tr>
+                <td><strong>{{ bp.position_number }}</strong></td>
+                <td>{{ bp.position_type or '—' }}</td>
+                <td>{{ bp.max_speed_kmh or '—' }} км/ч</td>
+                <td>{{ bp.num_retarders or '—' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <a href="/parks" class="btn btn-primary">🔙 Назад к списку горок</a>
+</div>
+{% endblock %}

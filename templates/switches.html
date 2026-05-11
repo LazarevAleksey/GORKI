@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Стрелки{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>🚉 Список стрелок</h2>
+    <div class="filter-bar">
+        <select class="filter-select" id="parkFilter" onchange="applyFilters()">
+            <option value="">Все горки</option>
+            {% for park in parks %}
+            <option value="{{ park.id }}" {% if selected_park == park.id %}selected{% endif %}>{{ park.name }}</option>
+            {% endfor %}
+        </select>
+        <a href="/switches" class="btn" style="background:#e0e0e0;">Сбросить</a>
+    </div>
+    <table class="table">
+        <thead><tr><th>ID</th><th>Номер</th><th>Тип</th><th>Модель</th><th>Горка</th><th>Участок</th><th>Статус</th><th></th></tr></thead>
+        <tbody>
+            {% for s in switches %}
+            <tr>
+                <td>{{ s.id }}</td>
+                <td><strong>{{ s.switch_number }}</strong></td>
+                <td>{{ s.switch_type or '—' }}</td>
+                <td>{{ s.model or '—' }}</td>
+                <td>{{ s.park_name or '—' }}</td>
+                <td>{{ s.section_name or '—' }}</td>
+                <td><span class="badge badge-{{ s.status }}">{{ '✅ В работе' if s.status == 'active' else '📦 В запасе' if s.status == 'reserve' else '❌ Списан' }}</span></td>
+                <td><a href="/switches/{{ s.id }}" class="btn btn-sm">📄</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+function applyFilters() {
+    let url = '/switches?';
+    const park = document.getElementById('parkFilter').value;
+    if (park) url += 'park_id=' + park;
+    window.location.href = url;
+}
+</script>
+{% endblock %}

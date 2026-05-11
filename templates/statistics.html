@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Статистика{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>📈 Статистика</h2>
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-number">{{ stats.total_devices }}</div><div>Всего устройств</div></div>
+        <div class="stat-card" style="background: #2e7d32;"><div class="stat-number">{{ stats.retarders }}</div><div>Замедлителей</div></div>
+        <div class="stat-card" style="background: #e65100;"><div class="stat-number">{{ stats.switches }}</div><div>Стрелок</div></div>
+        <div class="stat-card" style="background: #1565c0;"><div class="stat-number">{{ stats.track_sections }}</div><div>Участков пути</div></div>
+        <div class="stat-card" style="background: #6a1b9a;"><div class="stat-number">{{ stats.components }}</div><div>Компонентов</div></div>
+        <div class="stat-card" style="background: #c62828;"><div class="stat-number">{{ stats.need_repair }}</div><div>Требуют ремонта</div></div>
+    </div>
+</div>
+<div class="card">
+    <h2>⚙️ По типам оборудования</h2>
+    <table class="table">
+        <thead><tr><th>Тип</th><th>Количество</th></tr></thead>
+        <tbody>{% for type, count in stats.by_type %}<tr><td>{{ type }}</td><td>{{ count }}</td></tr>{% endfor %}</tbody>
+    </table>
+</div>
+<div class="card">
+    <h2>🏭 По горкам</h2>
+    <table class="table">
+        <thead><tr><th>Горка</th><th>Количество</th></tr></thead>
+        <tbody>{% for park, count in stats.by_park %}<tr><td>{{ park or 'Не указана' }}</td><td>{{ count }}</td></tr>{% endfor %}</tbody>
+    </table>
+</div>
+<div class="card">
+    <h2>📊 По статусам</h2>
+    <table class="table">
+        <thead><tr><th>Статус</th><th>Количество</th></tr></thead>
+        <tbody>
+            <tr><td>✅ В эксплуатации</td><td>{{ stats.by_status.get('active', 0) }}</td></tr>
+            <tr><td>📦 В запасе</td><td>{{ stats.by_status.get('reserve', 0) }}</td></tr>
+            <tr><td>❌ Списан</td><td>{{ stats.by_status.get('written_off', 0) }}</td></tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

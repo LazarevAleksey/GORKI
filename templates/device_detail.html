@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Устройство {{ device.model }}{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>{{ device.icon or '' }} {{ device.equipment_type_name or 'Устройство' }}: {{ device.model or '—' }}</h2>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+        <div><strong>📟 Тип:</strong> {{ device.equipment_type_name or '—' }}</div>
+        <div><strong>🏭 Горка:</strong> {{ device.park_name or '—' }}</div>
+        <div><strong>🏷️ Инв. номер:</strong> {{ device.inv_number or '—' }}</div>
+        <div><strong>🔢 Зав. номер:</strong> {{ device.serial_number or '—' }}</div>
+        <div><strong>📍 Расположение:</strong> {{ device.location_detail or '—' }}</div>
+        <div><strong>📅 Дата установки:</strong> {{ device.install_date or '—' }}</div>
+        <div><strong>📅 Дата изготовления:</strong> {{ device.manufacture_date or '—' }}</div>
+        <div><strong>📝 Статус:</strong> <span class="badge badge-{{ device.status }}">{{ '✅ В работе' if device.status == 'active' else '📦 В запасе' if device.status == 'reserve' else '❌ Списан' }}</span></div>
+        <div><strong>📌 Примечания:</strong> {{ device.notes or '—' }}</div>
+    </div>
+    <div style="margin-top: 20px;">
+        <a href="/devices" class="btn btn-primary">🔙 Назад</a>
+        <a href="/devices/{{ device.id }}/edit" class="btn" style="background: #ffc107;">✏️ Редактировать</a>
+    </div>
+</div>
+
+{% if components %}
+<div class="card">
+    <h2>🔧 Составные части</h2>
+    <table class="table">
+        <thead><tr><th>Тип</th><th>Модель</th><th>Зав. номер</th><th>Производитель</th><th>Дата установки</th></tr></thead>
+        <tbody>
+            {% for c in components %}
+            <tr>
+                <td>{{ c.component_type }}</td>
+                <td>{{ c.model or '—' }}</td>
+                <td>{{ c.serial_number or '—' }}</td>
+                <td>{{ c.manufacturer or '—' }}</td>
+                <td>{{ c.install_date or '—' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

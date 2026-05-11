@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Замедлители{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>🛑 Список замедлителей</h2>
+    <div class="filter-bar">
+        <select class="filter-select" id="parkFilter" onchange="applyFilters()">
+            <option value="">Все горки</option>
+            {% for park in parks %}
+            <option value="{{ park.id }}" {% if selected_park == park.id %}selected{% endif %}>{{ park.name }}</option>
+            {% endfor %}
+        </select>
+        <select class="filter-select" id="positionFilter" onchange="applyFilters()">
+            <option value="">Все позиции</option>
+            <option value="1" {% if selected_position == '1' %}selected{% endif %}>1 позиция (ВТП)</option>
+            <option value="2" {% if selected_position == '2' %}selected{% endif %}>2 позиция (СТП)</option>
+            <option value="3" {% if selected_position == '3' %}selected{% endif %}>3 позиция (НТП)</option>
+        </select>
+        <a href="/retarders" class="btn" style="background:#e0e0e0;">Сбросить</a>
+    </div>
+    <table class="table">
+        <thead><tr><th>ID</th><th>Модель</th><th>Высота</th><th>Горка</th><th>Позиция</th><th>Номер по схеме</th><th>Год уст.</th><th>Наработка</th><th>План ремонта</th><th>Статус</th><th></th></tr></thead>
+        <tbody>
+            {% for r in retarders %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td><strong>{{ r.model }}</strong></td>
+                <td>{% if r.height_mm %}{{ r.height_mm }} мм{% else %}—{% endif %}</td>
+                <td>{{ r.park_name or '—' }}</td>
+                <td>{{ r.position_number or '—' }} ({{ r.position_type or '—' }})</td>
+                <td>{{ r.tor_position or '—' }}</td>
+                <td>{{ r.install_year or '—' }}</td>
+                <td>{{ '{:,}'.format(r.total_operations).replace(',', ' ') if r.total_operations else '—' }}</td>
+                <td>{% if r.planned_repair_year %}<span style="color: {% if r.planned_repair_year < 2025 %}red{% else %}green{% endif %};">{{ r.planned_repair_year }}</span>{% else %}—{% endif %}</td>
+                <td><span class="badge badge-{{ r.status }}">{{ '✅ В работе' if r.status == 'active' else '📦 В запасе' if r.status == 'reserve' else '❌ Списан' }}</span></td>
+                <td><a href="/retarders/{{ r.id }}" class="btn btn-sm">📄</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+function applyFilters() {
+    let url = '/retarders?';
+    const park = document.getElementById('parkFilter').value;
+    const position = document.getElementById('positionFilter').value;
+    if (park) url += 'park_id=' + park;
+    if (position) url += (park ? '&' : '') + 'position=' + position;
+    window.location.href = url;
+}
+</script>
+{% endblock %}

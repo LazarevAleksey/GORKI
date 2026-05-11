@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Стрелка {{ switch.switch_number }}{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>🚉 Стрелка: {{ switch.switch_number }}</h2>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+        <div><strong>Тип:</strong> {{ switch.switch_type or '—' }}</div>
+        <div><strong>Модель:</strong> {{ switch.model or '—' }}</div>
+        <div><strong>Горка:</strong> {{ switch.park_name or '—' }}</div>
+        <div><strong>Участок:</strong> {{ switch.section_name or '—' }}</div>
+        <div><strong>Инв. номер:</strong> {{ switch.inv_number or '—' }}</div>
+        <div><strong>Электропривод:</strong> {{ '✅ есть' if switch.has_electric_drive else '—' }}</div>
+        <div><strong>Обогрев:</strong> {{ '✅ есть' if switch.has_switch_heating else '—' }}</div>
+        <div><strong>Статус:</strong> <span class="badge badge-{{ switch.status }}">{{ '✅ В работе' if switch.status == 'active' else '📦 В запасе' if switch.status == 'reserve' else '❌ Списан' }}</span></div>
+    </div>
+    <div style="margin-top: 20px;">
+        <a href="/switches" class="btn btn-primary">🔙 Назад</a>
+    </div>
+</div>
+{% endblock %}

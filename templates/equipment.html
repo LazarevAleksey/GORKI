@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Оборудование{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>🔧 Оборудование горки</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Тип</th>
+                <th>Модель</th>
+                <th>Инв. номер</th>
+                <th>Горка</th>
+                <th>Статус</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for eq in equipment %}
+            <tr>
+                <td>{{ eq.id }}</td>
+                <td>{{ eq.device_type or '—' }}</td>
+                <td>{{ eq.retarder_model or eq.model or '—' }}</td>
+                <td>{{ eq.inv_number or '—' }}</td>
+                <td>{{ eq.park_name or '—' }}</td>
+                <td>
+                    <span class="badge badge-{{ eq.status }}">
+                        {% if eq.status == 'active' %}✅ В работе
+                        {% elif eq.status == 'reserve' %}📦 В запасе
+                        {% else %}❌ Списан{% endif %}
+                    </span>
+                </td>
+                <td>
+                    {% if eq.retarder_model %}
+                    <a href="/retarder/{{ eq.id }}" class="btn" style="background: #e3f2fd;">📄</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

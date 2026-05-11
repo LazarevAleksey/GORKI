@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Оборудование{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>📟 Всё оборудование</h2>
+    <a href="/devices/add" class="btn btn-primary" style="background: #2e7d32;">➕ Добавить устройство</a>
+    <div class="filter-bar">
+        <select class="filter-select" id="typeFilter" onchange="applyFilters()">
+            <option value="">Все типы</option>
+            {% for type in types %}
+            <option value="{{ type }}" {% if selected_type == type %}selected{% endif %}>{{ type }}</option>
+            {% endfor %}
+        </select>
+        <select class="filter-select" id="parkFilter" onchange="applyFilters()">
+            <option value="">Все горки</option>
+            {% for park in parks %}
+            <option value="{{ park.id }}" {% if selected_park == park.id %}selected{% endif %}>{{ park.name }}</option>
+            {% endfor %}
+        </select>
+        <a href="/devices" class="btn" style="background:#e0e0e0;">Сбросить</a>
+    </div>
+    <table class="table">
+        <thead>
+            <tr><th>ID</th><th>Тип</th><th>Модель</th><th>Инв. номер</th><th>Горка</th><th>Место</th><th>Статус</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for d in devices %}
+            <tr>
+                <td>{{ d.id }}</td>
+                <td>{{ d.icon or '' }} {{ d.equipment_type_name or '—' }}</td>
+                <td><strong>{{ d.model or '—' }}</strong></td>
+                <td>{{ d.inv_number or '—' }}</td>
+                <td>{{ d.park_name or '—' }}</td>
+                <td>{{ d.location_detail or d.section_name or '—' }}</td>
+                <td><span class="badge badge-{{ d.status }}">{{ '✅ В работе' if d.status == 'active' else '📦 В запасе' if d.status == 'reserve' else '❌ Списан' }}</span></td>
+                <td><a href="/devices/{{ d.id }}" class="btn btn-sm">📄</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+function applyFilters() {
+    let url = '/devices?';
+    const type = document.getElementById('typeFilter').value;
+    const park = document.getElementById('parkFilter').value;
+    if (type) url += 'device_type=' + encodeURIComponent(type);
+    if (park) url += (type ? '&' : '') + 'park_id=' + park;
+    window.location.href = url;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Добавление оборудования{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>➕ Добавление нового оборудования</h2>
+    <form method="POST" action="/devices/add">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div>
+                <label>Тип оборудования *</label>
+                <select name="equipment_type_id" class="filter-select" style="width: 100%;" required>
+                    <option value="">-- выберите тип --</option>
+                    {% for et in equipment_types %}
+                    <option value="{{ et.id }}">{{ et.icon or '' }} {{ et.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Горка</label>
+                <select name="park_id" class="filter-select" style="width: 100%;">
+                    <option value="">-- не выбрано --</option>
+                    {% for park in parks %}
+                    <option value="{{ park.id }}">{{ park.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Участок пути</label>
+                <select name="track_section_id" class="filter-select" style="width: 100%;">
+                    <option value="">-- не выбрано --</option>
+                    {% for section in sections %}
+                    <option value="{{ section.id }}">{{ section.code }} - {{ section.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Тормозная позиция</label>
+                <select name="brake_position_id" class="filter-select" style="width: 100%;">
+                    <option value="">-- не выбрано --</option>
+                    {% for bp in brake_positions %}
+                    <option value="{{ bp.id }}">{{ bp.position_number }} позиция ({{ bp.position_type or 'не указан' }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Модель *</label>
+                <input type="text" name="model" class="form-control" style="width: 100%; padding: 8px;" required>
+            </div>
+            <div>
+                <label>Инвентарный номер</label>
+                <input type="text" name="inv_number" class="form-control" style="width: 100%; padding: 8px;">
+            </div>
+            <div>
+                <label>Заводской номер</label>
+                <input type="text" name="serial_number" class="form-control" style="width: 100%; padding: 8px;">
+            </div>
+            <div>
+                <label>Местоположение</label>
+                <input type="text" name="location_detail" class="form-control" style="width: 100%; padding: 8px;">
+            </div>
+            <div>
+                <label>Дата установки</label>
+                <input type="date" name="install_date" class="form-control" style="width: 100%; padding: 8px;">
+            </div>
+            <div>
+                <label>Дата изготовления</label>
+                <input type="date" name="manufacture_date" class="form-control" style="width: 100%; padding: 8px;">
+            </div>
+            <div>
+                <label>Статус</label>
+                <select name="status" class="filter-select" style="width: 100%;">
+                    <option value="active">✅ В эксплуатации</option>
+                    <option value="reserve">📦 В запасе</option>
+                    <option value="written_off">❌ Списан</option>
+                </select>
+            </div>
+            <div style="grid-column: span 2;">
+                <label>Примечания</label>
+                <textarea name="notes" rows="3" class="form-control" style="width: 100%; padding: 8px;"></textarea>
+            </div>
+        </div>
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+            <a href="/devices" class="btn" style="background: #e0e0e0;">❌ Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
