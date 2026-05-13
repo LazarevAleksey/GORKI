@@ -90,24 +90,63 @@ def get_retarders(park_id: Optional[int] = None, position: Optional[str] = None)
     conn.close()
     return result
 
+# def get_retarder_by_id(retarder_id: int) -> Optional[Dict]:
+#     conn = get_db()
+#     cursor = conn.cursor()
+#     cursor.execute("""
+#         SELECT r.*, d.inv_number, d.serial_number, d.status, d.notes, d.install_date,
+#                p.name as park_name, p.class as park_class,
+#                ts.name as section_name, ts.code as section_code,
+#                bp.position_number, bp.position_type
+#         FROM retarders r
+#         JOIN devices d ON r.device_id = d.id
+#         LEFT JOIN parks p ON d.park_id = p.id
+#         LEFT JOIN track_sections ts ON d.track_section_id = ts.id
+#         LEFT JOIN brake_positions bp ON d.brake_position_id = bp.id
+#         WHERE r.id = ?
+#     """, (retarder_id,))
+#     row = cursor.fetchone()
+#     conn.close()
+#     return dict(row) if row else None
+
 def get_retarder_by_id(retarder_id: int) -> Optional[Dict]:
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("""
-        SELECT r.*, d.inv_number, d.serial_number, d.status, d.notes, d.install_date,
-               p.name as park_name, p.class as park_class,
-               ts.name as section_name, ts.code as section_code,
-               bp.position_number, bp.position_type
-        FROM retarders r
-        JOIN devices d ON r.device_id = d.id
-        LEFT JOIN parks p ON d.park_id = p.id
-        LEFT JOIN track_sections ts ON d.track_section_id = ts.id
-        LEFT JOIN brake_positions bp ON d.brake_position_id = bp.id
-        WHERE r.id = ?
-    """, (retarder_id,))
-    row = cursor.fetchone()
+    
+    cursor.execute("SELECT * FROM retarders WHERE id = ?", (retarder_id,))
+    retarder = cursor.fetchone()
+    
+    if not retarder:
+        conn.close()
+        return None
+    
+    retarder_dict = dict(retarder)
+    
+    # Получаем связанное устройство
+    cursor.execute("SELECT * FROM devices WHERE id = ?", (retarder_dict['device_id'],))
+    device = cursor.fetchone()
+    if device:
+        device_dict = dict(device)
+        retarder_dict['inv_number'] = device_dict.get('inv_number', '')
+        retarder_dict['serial_number'] = device_dict.get('serial_number', '')
+        retarder_dict['status'] = device_dict.get('status', '')
+        retarder_dict['install_date'] = device_dict.get('install_date', '')
+        retarder_dict['notes'] = device_dict.get('notes', '')
+        retarder_dict['park_id'] = device_dict.get('park_id', '')
+        
+        # Получаем парк
+        if device_dict.get('park_id'):
+            cursor.execute("SELECT name FROM parks WHERE id = ?", (device_dict['park_id'],))
+            park = cursor.fetchone()
+            retarder_dict['park_name'] = park['name'] if park else ''
+    
+    # Убеждаемся, что все поля есть
+    for field in ['tor_position', 'way', 'notes', 'inv_number', 'serial_number', 'status', 'park_name']:
+        if field not in retarder_dict:
+            retarder_dict[field] = ''
+    
     conn.close()
-    return dict(row) if row else None
+    return retarder_dict
 
 def update_retarder(retarder_id: int, data) -> bool:
     conn = get_db()

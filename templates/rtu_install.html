@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Установка на горку{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>🚀 Установка на горку: {{ device.model or '—' }}</h2>
+    
+    <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;">
+        <div><strong>Инв. номер:</strong> {{ device.inv_number or '—' }}</div>
+        <div><strong>Зав. номер:</strong> {{ device.serial_number or '—' }}</div>
+        <div><strong>Тип:</strong> {{ device.type_name or '—' }}</div>
+    </div>
+    
+    <form method="POST" action="/rtu/device/{{ device.id }}/install">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div>
+                <label>Горка *</label>
+                <select name="park_id" class="form-control" style="width:100%; padding:8px;" required>
+                    <option value="">-- выберите --</option>
+                    {% for park in parks %}
+                    <option value="{{ park.id }}">{{ park.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Участок пути</label>
+                <select name="track_section_id" class="form-control" style="width:100%; padding:8px;">
+                    <option value="">-- не выбрано --</option>
+                    {% for section in sections %}
+                    <option value="{{ section.id }}">{{ section.code }} - {{ section.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Тормозная позиция (для замедлителей)</label>
+                <select name="brake_position_id" class="form-control" style="width:100%; padding:8px;" required>
+                    <option value="">-- не выбрано --</option>
+                    {% for bp in brake_positions %}
+                    <option value="{{ bp.id }}">{{ bp.position_number }} позиция ({{ bp.position_type or '—' }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Номер по схеме горки</label>
+                <input type="text" name="tor_position" class="form-control" style="width:100%; padding:8px;" placeholder="например: 1 ВТП" required>
+            </div>
+            <div>
+                <label>Дата установки *</label>
+                <input type="date" name="install_date" class="form-control" style="width:100%; padding:8px;" required>
+            </div>
+            <div>
+                <label>Номер акта монтажа</label>
+                <input type="text" name="act_number" class="form-control" style="width:100%; padding:8px;">
+            </div>
+        </div>
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-primary">✅ Установить на горку</button>
+            <a href="/rtu" class="btn" style="background:#e0e0e0;">❌ Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

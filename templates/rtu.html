@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="/static/rtu.css">
 {% endblock %}
 {% block content %}
+
 <style>
     /* ========== СТИЛИ ДЛЯ РТУ ========== */
     /* ОТЛАДОЧНЫЙ СТИЛЬ - ПОСЛЕ ОБНОВЛЕНИЯ УДАЛИТЬ */
@@ -210,37 +211,90 @@
         </div>
     </div>
     
+    <!-- Панель фильтрации -->
+<div class="filter-panel" style="background: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 25px;">
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+        <div style="flex: 1; min-width: 150px;">
+            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 5px;">Тип оборудования</label>
+            <select id="filterType" class="form-control" style="width:100%; padding:8px;">
+                <option value="">Все типы</option>
+                {% for et in equipment_types %}
+                <option value="{{ et[1] }}">{{ et[2] or '' }} {{ et[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="flex: 1; min-width: 180px;">
+            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 5px;">Поиск по инв. номеру</label>
+            <input type="text" id="searchInv" class="form-control" placeholder="Инвентарный номер..." style="width:100%; padding:8px;">
+        </div>
+        <div style="flex: 1; min-width: 180px;">
+            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 5px;">Поиск по зав. номеру</label>
+            <input type="text" id="searchSerial" class="form-control" placeholder="Заводской номер..." style="width:100%; padding:8px;">
+        </div>
+        <div style="flex: 1; min-width: 150px;">
+            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 5px;">Модель</label>
+            <select id="filterModel" class="form-control" style="width:100%; padding:8px;">
+                <option value="">Все модели</option>
+                {% for model in unique_models %}
+                <option value="{{ model[0] }}">{{ model[0] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="flex: 1; min-width: 150px;">
+            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 5px;">Горка</label>
+            <select id="filterPark" class="form-control" style="width:100%; padding:8px;">
+                <option value="">Все горки</option>
+                {% for park in unique_parks %}
+                <option value="{{ park[0] }}">{{ park[0] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <div>
+                <label style="display: block; font-size: 12px; color: #666; margin-bottom: 5px;">&nbsp;</label>
+                <button id="applyFilters" class="btn btn-primary" style="background: #1a237e; height: 38px;">🔍 Применить</button>
+            </div>
+            <div>
+                <label style="display: block; font-size: 12px; color: #666; margin-bottom: 5px;">&nbsp;</label>
+                <button id="clearFilters" class="btn" style="background: #e0e0e0; height: 38px;">✖️ Сбросить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
     <!-- Вкладки -->
     <div class="rtu-tabs">
         <button class="rtu-tab active" data-tab="in_rtu">📦 В РТУ <span class="count">{{ in_rtu|length }}</span></button>
         <button class="rtu-tab" data-tab="in_repair">🔧 В ремонте <span class="count">{{ in_repair|length }}</span></button>
         <button class="rtu-tab" data-tab="ready">✅ Готовы к выдаче <span class="count">{{ ready|length }}</span></button>
         <button class="rtu-tab" data-tab="active">🏭 На горках <span class="count">{{ active|length }}</span></button>
+        <button class="rtu-tab" data-tab="all">📋 Всё оборудование <span class="count">{{ all_devices|length }}</span></button>
     </div>
     
     <!-- Вкладка: В РТУ -->
     <div id="tab-in_rtu" class="tab-content">
         {% if in_rtu %}
         <table class="devices-table">
-            <thead>
-                <tr><th>Модель</th><th>Инв. номер</th><th>Зав. номер</th><th>Высота</th><th>Производитель</th><th>Действия</th></tr>
-            </thead>
-            <tbody>
-                {% for d in in_rtu %}
-                <tr>
-                    <td><strong>{{ d.model or '—' }}</strong></td>
-                    <td>{{ d.inv_number or '—' }}</td>
-                    <td>{{ d.serial_number or '—' }}</td>
-                    <td>{% if d.height_mm %}{{ d.height_mm }} мм{% else %}—{% endif %}</td>
-                    <td>{{ d.manufacturer or '—' }}</td>
-                    <td class="action-buttons">
-                        <a href="/rtu/device/{{ d.id }}/repair" class="btn-icon btn-repair">🔧 В ремонт</a>
-                        <a href="/rtu/device/{{ d.id }}/install" class="btn-icon btn-install">🚀 На горку</a>
-                        <a href="/devices/{{ d.id }}" class="btn-icon btn-view">📄</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
+        <thead>
+            <tr><th>Тип</th><th>Модель</th><th>Инв. номер</th><th>Зав. номер</th><th>Высота</th><th>Производитель</th><th>Действия</th></tr>
+        </thead>
+        <tbody>
+            {% for d in in_rtu %}
+            <tr>
+                <td class="device-type">{{ d.type_name or '—' }}</td>
+                <td><strong>{{ d.model or '—' }}</strong></td>
+                <td>{{ d.inv_number or '—' }}</td>
+                <td>{{ d.serial_number or '—' }}</td>
+                <td>{% if d.height_mm %}{{ d.height_mm }} мм{% else %}—{% endif %}</td>
+                <td>{{ d.manufacturer or '—' }}</td>
+                <td class="action-buttons">
+                    <a href="/rtu/device/{{ d.id }}/repair" class="btn-icon btn-repair">🔧 В ремонт</a>
+                    <a href="/rtu/device/{{ d.id }}/install" class="btn-icon btn-install">🚀 На горку</a>
+                    <a href="/devices/{{ d.id }}" class="btn-icon btn-view">📄</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
         </table>
         {% else %}
         <div class="empty-state">📭 Нет оборудования в РТУ</div>
@@ -252,11 +306,12 @@
         {% if in_repair %}
         <table class="devices-table">
             <thead>
-                <tr><th>Модель</th><th>Инв. номер</th><th>Дефекты</th><th>Дата приёма</th><th>Действия</th></tr>
+                <tr><th>Тип</th><th>Модель</th><th>Инв. номер</th><th>Дефекты</th><th>Дата приёма</th><th>Действия</th></tr>
             </thead>
             <tbody>
                 {% for d in in_repair %}
                 <tr>
+                    <td class="device-type">{{ d.type_name or '—' }}</td>
                     <td><strong>{{ d.model or '—' }}</strong></td>
                     <td>{{ d.inv_number or '—' }}</td>
                     <td>{{ d.defects or '—' }}</td>
@@ -278,21 +333,22 @@
         {% if ready %}
         <table class="devices-table">
             <thead>
-                <tr><th>Модель</th><th>Инв. номер</th><th>Дата ремонта</th><th>Действия</th></tr>
-            </thead>
-            <tbody>
-                {% for d in ready %}
-                <tr>
-                    <td><strong>{{ d.model or '—' }}</strong></td>
-                    <td>{{ d.inv_number or '—' }}</td>
-                    <td>{{ d.completed_date or '—' }}</td>
-                    <td class="action-buttons">
-                        <a href="/rtu/device/{{ d.id }}/install" class="btn-icon btn-install">🚀 На горку</a>
-                        <a href="/devices/{{ d.id }}" class="btn-icon btn-view">📄</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
+            <tr><th>Тип</th><th>Модель</th><th>Инв. номер</th><th>Дата ремонта</th><th>Действия</th></tr>
+        </thead>
+        <tbody>
+            {% for d in ready %}
+            <tr>
+                <td class="device-type">{{ d.type_name or '—' }}</td>
+                <td><strong>{{ d.model or '—' }}</strong></td>
+                <td>{{ d.inv_number or '—' }}</td>
+                <td>{{ d.completed_date or '—' }}</td>
+                <td class="action-buttons">
+                    <a href="/rtu/device/{{ d.id }}/install" class="btn-icon btn-install">🚀 На горку</a>
+                    <a href="/devices/{{ d.id }}" class="btn-icon btn-view">📄</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
         </table>
         {% else %}
         <div class="empty-state">✅ Нет готовых к выдаче изделий</div>
@@ -304,11 +360,12 @@
         {% if active %}
         <table class="devices-table">
             <thead>
-                <tr><th>Модель</th><th>Инв. номер</th><th>Горка</th><th>Позиция</th><th>Наработка</th><th>Действия</th></tr>
+                <tr><th>Тип</th><th>Модель</th><th>Инв. номер</th><th>Горка</th><th>Позиция</th><th>Наработка</th><th>Действия</th></tr>
             </thead>
             <tbody>
                 {% for d in active %}
                 <tr>
+                    <td class="device-type">{{ d.type_name or '—' }}</td>
                     <td><strong>{{ d.model or '—' }}</strong></td>
                     <td>{{ d.inv_number or '—' }}</td>
                     <td>{{ d.park_name or '—' }}</td>
@@ -327,23 +384,183 @@
     </div>
 </div>
 
+<!-- Вкладка: Всё оборудование -->
+<div id="tab-all" class="tab-content" style="display: none;">
+    {% if all_devices %}
+    <table class="devices-table">
+        <thead>
+            <tr>
+                <th>Тип</th>
+                <th>Модель</th>
+                <th>Инв. номер</th>
+                <th>Зав. номер</th>
+                <th>Статус</th>
+                <th>Горка</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in all_devices %}
+            <tr>
+                <td class="device-type">{{ d.type_name or '—' }}</td>
+                <td><strong>{{ d.model or '—' }}</strong></td>
+                <td>{{ d.inv_number or '—' }}</td>
+                <td>{{ d.serial_number or '—' }}</td>
+                <td>
+                    {% if d.status == 'active' %}
+                    <span class="badge badge-active">✅ В эксплуатации</span>
+                    {% elif d.status == 'in_rtu' %}
+                    <span class="badge" style="background:#e3f2fd; color:#1565c0;">📦 В РТУ</span>
+                    {% elif d.status == 'in_repair' %}
+                    <span class="badge" style="background:#fff3e0; color:#e65100;">🔧 В ремонте</span>
+                    {% elif d.status == 'reserve' %}
+                    <span class="badge badge-reserve">📦 В запасе</span>
+                    {% elif d.status == 'written_off' %}
+                    <span class="badge badge-written_off">❌ Списан</span>
+                    {% else %}
+                    <span class="badge">{{ d.status }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ d.park_name or '—' }}</td>
+                <td class="action-buttons">
+                    <a href="/devices/{{ d.id }}" class="btn-icon btn-view">📄</a>
+                    {% if d.status == 'in_rtu' %}
+                    <a href="/rtu/device/{{ d.id }}/repair" class="btn-icon btn-repair">🔧 В ремонт</a>
+                    <a href="/rtu/device/{{ d.id }}/install" class="btn-icon btn-install">🚀 На горку</a>
+                    {% endif %}
+                    {% if d.status == 'active' %}
+                    <a href="/rtu/device/{{ d.id }}/dismantle" class="btn-icon" style="background:#ffebee; color:#c62828;">🔧 Демонтаж</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">📭 Нет оборудования</div>
+    {% endif %}
+</div>
+
 <script>
+    // Переменные для хранения текущих фильтров
+    let currentFilters = {
+        filterType: '',
+        searchInv: '',
+        searchSerial: '',
+        filterModel: '',
+        filterPark: ''
+    };
+    
     // Переключение вкладок
-    document.querySelectorAll('.rtu-tab').forEach(tab => {
+    document.querySelectorAll('.rtu-tab').forEach(function(tab) {
         tab.addEventListener('click', function() {
-            // Убираем активный класс со всех вкладок
-            document.querySelectorAll('.rtu-tab').forEach(t => t.classList.remove('active'));
+            var tabs = document.querySelectorAll('.rtu-tab');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
             this.classList.add('active');
             
-            // Скрываем все содержимое вкладок
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.style.display = 'none';
-            });
+            var contents = document.querySelectorAll('.tab-content');
+            for (var i = 0; i < contents.length; i++) {
+                contents[i].style.display = 'none';
+            }
             
-            // Показываем выбранную вкладку
-            const tabId = this.getAttribute('data-tab');
-            document.getElementById(`tab-${tabId}`).style.display = 'block';
+            var tabId = this.getAttribute('data-tab');
+            document.getElementById('tab-' + tabId).style.display = 'block';
+            
+            // Применяем фильтры после переключения вкладки
+            applyFilters();
         });
+    });
+    
+    // Функция применения фильтров
+    function applyFilters() {
+        // Сохраняем текущие значения фильтров
+        currentFilters.filterType = document.getElementById('filterType').value.toLowerCase();
+        currentFilters.searchInv = document.getElementById('searchInv').value.toLowerCase();
+        currentFilters.searchSerial = document.getElementById('searchSerial').value.toLowerCase();
+        currentFilters.filterModel = document.getElementById('filterModel').value;
+        currentFilters.filterPark = document.getElementById('filterPark').value;
+        
+        // Фильтруем все таблицы
+        const tables = document.querySelectorAll('.devices-table');
+        tables.forEach(table => {
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                let show = true;
+                
+                // Фильтр по типу оборудования (первая ячейка)
+                if (currentFilters.filterType && show) {
+                    const typeCell = row.cells[0];
+                    if (typeCell) {
+                        const typeText = typeCell.textContent.toLowerCase();
+                        if (!typeText.includes(currentFilters.filterType)) show = false;
+                    }
+                }
+                
+                // Поиск по инвентарному номеру (третья ячейка)
+                if (currentFilters.searchInv && show) {
+                    const invCell = row.cells[2];
+                    if (invCell) {
+                        const invText = invCell.textContent.toLowerCase();
+                        if (!invText.includes(currentFilters.searchInv)) show = false;
+                    }
+                }
+                
+                // Поиск по заводскому номеру (четвёртая ячейка)
+                if (currentFilters.searchSerial && show) {
+                    const serialCell = row.cells[3];
+                    if (serialCell) {
+                        const serialText = serialCell.textContent.toLowerCase();
+                        if (!serialText.includes(currentFilters.searchSerial)) show = false;
+                    }
+                }
+                
+                // Фильтр по модели (вторая ячейка)
+                if (currentFilters.filterModel && show) {
+                    const modelCell = row.cells[1];
+                    if (modelCell) {
+                        const modelText = modelCell.textContent.trim();
+                        if (modelText !== currentFilters.filterModel) show = false;
+                    }
+                }
+                
+                // Фильтр по горке (только для вкладки "На горках")
+                const activeTab = document.querySelector('.rtu-tab.active').getAttribute('data-tab');
+                if (currentFilters.filterPark && activeTab === 'active' && show) {
+                    // В таблице "На горках" горка находится в четвёртой ячейке
+                    const parkCell = row.cells[3];
+                    if (parkCell) {
+                        const parkText = parkCell.textContent.trim();
+                        if (parkText !== currentFilters.filterPark) show = false;
+                    }
+                }
+                
+                row.style.display = show ? '' : 'none';
+            });
+        });
+    }
+    
+    // Сброс фильтров
+    function clearFilters() {
+        document.getElementById('filterType').value = '';
+        document.getElementById('searchInv').value = '';
+        document.getElementById('searchSerial').value = '';
+        document.getElementById('filterModel').value = '';
+        document.getElementById('filterPark').value = '';
+        applyFilters();
+    }
+    
+    // Привязываем события
+    document.getElementById('applyFilters').addEventListener('click', applyFilters);
+    document.getElementById('clearFilters').addEventListener('click', clearFilters);
+    
+    // Обработка нажатия Enter в полях ввода
+    document.getElementById('searchInv').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') applyFilters();
+    });
+    document.getElementById('searchSerial').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') applyFilters();
     });
 </script>
 {% endblock %}

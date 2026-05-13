@@ -33,7 +33,7 @@
                 <td>{{ '{:,}'.format(r.total_operations).replace(',', ' ') if r.total_operations else '—' }}</td>
                 <td>{% if r.planned_repair_year %}<span style="color: {% if r.planned_repair_year < 2025 %}red{% else %}green{% endif %};">{{ r.planned_repair_year }}</span>{% else %}—{% endif %}</td>
                 <td><span class="badge badge-{{ r.status }}">{{ '✅ В работе' if r.status == 'active' else '📦 В запасе' if r.status == 'reserve' else '❌ Списан' }}</span></td>
-                <td><a href="/retarders/{{ r.id }}" class="btn btn-sm">📄</a></td>
+                <td><a href="/retarders/{{ r.id }}/edit" class="btn btn-sm">✏️</a></td>
             </tr>
             {% endfor %}
         </tbody>

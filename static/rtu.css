@@ -1,22 +1,19 @@
 /* static/rtu.css */
 
-/* Статистика */
+/* ========== СТАТИСТИКА ========== */
 .rtu-stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 25px;
+    gap: 30px;
     margin-bottom: 30px;
-}
-.rtu-stats .stat-card {
-    background: #1a237e;
 }
 
 .stat-card {
-    background: rgb(4, 76, 234);
+    background: linear-gradient(135deg, #1a237e, #283593);
     border-radius: 16px;
-    padding: 25px 20px;
+    padding: 20px;
     text-align: center;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -28,19 +25,309 @@
 .stat-card .icon {
     font-size: 36px;
     margin-bottom: 10px;
+    filter: brightness(0) invert(1);
 }
 
 .stat-card .number {
     font-size: 36px;
     font-weight: 700;
-    color: #1a237e;
+    color: white;
     line-height: 1.2;
 }
 
 .stat-card .label {
-    color: #666;
+    color: rgba(255,255,255,0.85);
     font-size: 13px;
     margin-top: 8px;
+}
+
+/* ========== ВКЛАДКИ ========== */
+.rtu-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.rtu-tab {
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    transition: all 0.2s;
+    border-radius: 8px 8px 0 0;
+}
+
+.rtu-tab:hover {
+    color: #1a237e;
+    background: #f0f2f5;
+}
+
+.rtu-tab.active {
+    color: #1a237e;
+    background: #e8eaf6;
+    border-bottom: 3px solid #1a237e;
+}
+
+.rtu-tab .count {
+    display: inline-block;
+    background: #e0e0e0;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    margin-left: 8px;
+    font-weight: normal;
+}
+
+.rtu-tab.active .count {
+    background: #1a237e;
+    color: white;
+}
+
+/* ========== ТАБЛИЦЫ ========== */
+.devices-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.devices-table th {
+    text-align: left;
+    padding: 12px 10px;
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.devices-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+.devices-table tr:hover {
+    background: #f8f9fa;
+}
+
+/* ========== КНОПКИ ========== */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-repair { background: #fff3e0; color: #e65100; }
+.btn-repair:hover { background: #ffe0b2; }
+
+.btn-install { background: #e8f5e9; color: #2e7d32; }
+.btn-install:hover { background: #c8e6c9; }
+
+.btn-view { background: #e3f2fd; color: #1565c0; }
+.btn-view:hover { background: #bbdefb; }
+
+/* ========== ПАНЕЛЬ ФИЛЬТРАЦИИ ========== */
+.filter-panel {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    border: 1px solid #e0e0e0;
+}
+
+.filter-panel label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.filter-panel .form-control {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 14px;
+    width: 100%;
+}
+
+.filter-panel .form-control:focus {
+    outline: none;
+    border-color: #1a237e;
+    box-shadow: 0 0 0 2px rgba(26,35,126,0.1);
+}
+
+/* ========== БЕЙДЖИ СТАТУСОВ ========== */
+.badge-active { background: #e8f5e9; color: #2e7d32; }
+.badge-reserve { background: #fff3e0; color: #e65100; }
+.badge-written_off { background: #ffebee; color: #c62828; }
+
+/* ========== ПУСТОЕ СОСТОЯНИЕ ========== */
+.empty-state {
+    text-align: center;
+    padding: 50px;
+    color: #999;
+    font-size: 14px;
+}
+
+/* ========== АДАПТИВНОСТЬ ========== */
+@media (max-width: 800px) {
+    .rtu-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    .devices-table {
+        font-size: 12px;
+    }
+    .devices-table th,
+    .devices-table td {
+        padding: 8px 6px;
+    }
+    .btn-icon {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+    .rtu-tab {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 600px) {
+    .rtu-stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .action-buttons {
+        flex-direction: column;
+    }
+    .filter-panel {
+        padding: 10px;
+    }
+}
+/* ========== ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ РТУ ========== */
+
+.tab-content {
+    display: block;
+}
+
+/* Переопределяем стили из base.html для карточек статистики */
+.rtu-stats .stat-card {
+    background: linear-gradient(135deg, #1a237e, #283593) !important;
+    border-radius: 16px !important;
+    padding: 20px !important;
+    text-align: center !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+}
+
+.rtu-stats .stat-card .icon {
+    font-size: 36px !important;
+    margin-bottom: 10px !important;
+    filter: brightness(0) invert(1) !important;
+}
+
+.rtu-stats .stat-card .number {
+    font-size: 36px !important;
+    font-weight: 700 !important;
+    color: white !important;
+}
+
+.rtu-stats .stat-card .label {
+    color: rgba(255,255,255,0.85) !important;
+    font-size: 13px !important;
+    margin-top: 8px !important;
+}
+
+/* Стили для таблиц */
+.devices-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.devices-table th {
+    text-align: left;
+    padding: 12px 10px;
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.devices-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+.devices-table tr:hover {
+    background: #f8f9fa;
+}
+
+/* Кнопки действий */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-repair { background: #fff3e0; color: #e65100; }
+.btn-repair:hover { background: #ffe0b2; }
+
+.btn-install { background: #e8f5e9; color: #2e7d32; }
+.btn-install:hover { background: #c8e6c9; }
+
+.btn-view { background: #e3f2fd; color: #1565c0; }
+.btn-view:hover { background: #bbdefb; }
+
+/* Панель фильтрации */
+.filter-panel {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    border: 1px solid #e0e0e0;
+}
+
+.filter-panel label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.filter-panel .form-control {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 14px;
+    width: 100%;
 }
 
 /* Вкладки */
@@ -88,61 +375,6 @@
     color: white;
 }
 
-/* Таблицы */
-.devices-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-
-.devices-table th {
-    text-align: left;
-    padding: 12px 10px;
-    background: #f8f9fa;
-    font-weight: 600;
-    color: #555;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-.devices-table td {
-    padding: 12px 10px;
-    border-bottom: 1px solid #f0f0f0;
-    vertical-align: middle;
-}
-
-.devices-table tr:hover {
-    background: #f8f9fa;
-}
-
-/* Кнопки */
-.action-buttons {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.btn-icon {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 12px;
-    font-size: 12px;
-    border-radius: 6px;
-    text-decoration: none;
-    transition: all 0.2s;
-    border: none;
-    cursor: pointer;
-}
-
-.btn-repair { background: #fff3e0; color: #e65100; }
-.btn-repair:hover { background: #ffe0b2; }
-
-.btn-install { background: #e8f5e9; color: #2e7d32; }
-.btn-install:hover { background: #c8e6c9; }
-
-.btn-view { background: #e3f2fd; color: #1565c0; }
-.btn-view:hover { background: #bbdefb; }
-
 /* Пустое состояние */
 .empty-state {
     text-align: center;
@@ -151,11 +383,16 @@
     font-size: 14px;
 }
 
+/* Бейджи статусов */
+.badge-active { background: #e8f5e9; color: #2e7d32; }
+.badge-reserve { background: #fff3e0; color: #e65100; }
+.badge-written_off { background: #ffebee; color: #c62828; }
+
 /* Адаптивность */
 @media (max-width: 800px) {
     .rtu-stats {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 15px !important;
     }
     .devices-table {
         font-size: 12px;
@@ -168,12 +405,16 @@
         padding: 4px 8px;
         font-size: 10px;
     }
+    .rtu-tab {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
 }
 
 @media (max-width: 600px) {
     .rtu-stats {
-        grid-template-columns: 1fr;
-        gap: 10px;
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
     }
     .action-buttons {
         flex-direction: column;

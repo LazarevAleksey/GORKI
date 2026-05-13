@@ -17,6 +17,19 @@ async def rtu_home(request: Request):
     conn = get_db()
     cursor = conn.cursor()
     
+    # ДОБАВЬТЕ: Все устройства (без фильтра по статусу)
+    cursor.execute("""
+        SELECT d.*, et.name as type_name, et.icon,
+               p.name as park_name,
+               rd.tor_position, rd.total_operations
+        FROM devices d
+        JOIN equipment_types et ON d.equipment_type_id = et.id
+        LEFT JOIN parks p ON d.park_id = p.id
+        LEFT JOIN retarders rd ON d.id = rd.device_id
+        ORDER BY d.id DESC
+    """)
+    all_devices = cursor.fetchall()
+
     # Устройства в РТУ
     cursor.execute("""
         SELECT d.*, et.name as type_name, et.icon
@@ -62,16 +75,58 @@ async def rtu_home(request: Request):
         ORDER BY d.id DESC
     """)
     active = cursor.fetchall()
-    
+    # В функции rtu_home добавьте после получения active:
+    # Получаем уникальные типы оборудования для фильтра
+    cursor.execute("""
+        SELECT DISTINCT et.id, et.name, et.icon 
+        FROM equipment_types et
+        JOIN devices d ON d.equipment_type_id = et.id
+        ORDER BY et.name
+    """)
+    equipment_types = cursor.fetchall()
+
+    # Получаем уникальные модели для фильтра
+    cursor.execute("""
+        SELECT DISTINCT model FROM devices 
+        WHERE model IS NOT NULL AND model != '' 
+        ORDER BY model
+    """)
+    unique_models = cursor.fetchall()
+
+    # Получаем уникальные горки для фильтра
+    cursor.execute("""
+        SELECT DISTINCT p.name FROM parks p
+        JOIN devices d ON d.park_id = p.id
+        WHERE p.name IS NOT NULL
+        ORDER BY p.name
+    """)
+    unique_parks = cursor.fetchall()
     conn.close()
-    
+    # Передаём в шаблон
     return templates.TemplateResponse("rtu.html", {
         "request": request,
         "in_rtu": in_rtu,
         "in_repair": in_repair,
         "ready": ready,
-        "active": active
+        "active": active,
+        "all_devices": all_devices,  # ← ДОБАВИТЬ
+        "equipment_types": equipment_types,
+        "unique_models": unique_models,
+        "unique_parks": unique_parks
     })
+    # return templates.TemplateResponse("rtu.html", {
+    #     "request": request,
+    #     "in_rtu": in_rtu,
+    #     "in_repair": in_repair,
+    #     "ready": ready,
+    #     "active": active,
+    #     "equipment_types": equipment_types,  # ← добавить
+    #     "unique_models": unique_models,
+    #     "unique_parks": unique_parks
+    # })
+
+    
+
 
 
 @router.get("/batch/add", response_class=HTMLResponse)
