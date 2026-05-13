@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Партия {{ batch.batch_number }}{% endblock %}
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>📦 Партия: {{ batch.batch_number }}</h2>
+        <button onclick="showAddDeviceModal()" class="btn btn-primary">➕ Добавить оборудование</button>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+        <div><strong>Дата поступления:</strong> {{ batch.received_date }}</div>
+        <div><strong>Поставщик:</strong> {{ batch.supplier or '—' }}</div>
+        <div><strong>Номер счёта:</strong> {{ batch.invoice_number or '—' }}</div>
+        <div><strong>Примечания:</strong> {{ batch.notes or '—' }}</div>
+    </div>
+    
+    <h3>📟 Оборудование в партии</h3>
+    <table class="table">
+        <thead>
+            <tr><th>Тип</th><th>Модель</th><th>Зав. номер</th><th>Инв. номер</th><th>Высота</th><th>Статус</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for d in devices %}
+            <tr>
+                <td>{{ d.type_name or '—' }}</td>
+                <td><strong>{{ d.model or '—' }}</strong></td>
+                <td>{{ d.serial_number or '—' }}</td>
+                <td>{{ d.inv_number or '—' }}</td>
+                <td>{% if d.height_mm %}{{ d.height_mm }} мм{% else %}—{% endif %}</td>
+                <td>
+                    <span class="badge badge-{{ d.status }}">
+                        {% if d.status == 'in_rtu' %}📦 В РТУ
+                        {% elif d.status == 'in_repair' %}🔧 В ремонте
+                        {% elif d.status == 'active' %}✅ На горке
+                        {% else %}❌ {{ d.status }}{% endif %}
+                    </span>
+                </td>
+                <td><a href="/devices/{{ d.id }}" class="btn btn-sm">📄</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Модальное окно добавления оборудования -->
+<div id="addDeviceModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>➕ Добавить оборудование</h3>
+            <button onclick="closeModal()" style="background:none; border:none; font-size:24px;">&times;</button>
+        </div>
+        <form method="POST" action="/rtu/batch/{{ batch.id }}/add_device">
+            <div class="form-group">
+                <label>Тип оборудования *</label>
+                <select name="equipment_type_id" class="form-control" required>
+                    <option value="">-- выберите --</option>
+                    {% for et in equipment_types %}
+                    <option value="{{ et.id }}">{{ et.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Модель *</label>
+                <input type="text" name="model" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Заводской номер</label>
+                <input type="text" name="serial_number" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Инвентарный номер</label>
+                <input type="text" name="inv_number" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Высота (мм) для замедлителей</label>
+                <input type="number" name="height_mm" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">💾 Добавить</button>
+            <button type="button" onclick="closeModal()" class="btn">Отмена</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function showAddDeviceModal() {
+    document.getElementById('addDeviceModal').style.display = 'flex';
+}
+function closeModal() {
+    document.getElementById('addDeviceModal').style.display = 'none';
+}
+</script>
+{% endblock %}

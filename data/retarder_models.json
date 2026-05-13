@@ -1,0 +1,204 @@
+{
+    "models": [
+        {
+            "id": 1,
+            "name": "КЗ-3ПК",
+            "height_mm": 600,
+            "manufacturer": "ООО \"РМЗ\"",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 2,
+            "name": "КЗ-3ПК",
+            "height_mm": 900,
+            "manufacturer": "ООО \"РМЗ\"",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 3,
+            "name": "КЗ-3ПК",
+            "height_mm": 1130,
+            "manufacturer": "ООО \"РМЗ\"",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 4,
+            "name": "КЗ-5ПК",
+            "height_mm": 600,
+            "manufacturer": "АО \"АМЗ\"",
+            "max_speed_kmh": 32.4,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 5,
+            "name": "КЗ-5ПК",
+            "height_mm": 900,
+            "manufacturer": "АО \"АМЗ\"",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 6,
+            "name": "КЗ-5ПК",
+            "height_mm": 1130,
+            "manufacturer": "АО \"АМЗ\"",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 7,
+            "name": "КНЗ-3ПК",
+            "height_mm": 600,
+            "manufacturer": "АО \"АМЗ\"",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 8,
+            "name": "КНЗ-3ПК",
+            "height_mm": 900,
+            "manufacturer": "АО \"АМЗ\"",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 9,
+            "name": "КНЗ-3ПК",
+            "height_mm": 1130,
+            "manufacturer": "АО \"АМЗ\"",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 10,
+            "name": "КНЗ-5ПК",
+            "height_mm": 600,
+            "manufacturer": "АО \"АМЗ\"",
+            "max_speed_kmh": 32.4,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 11,
+            "name": "КНЗ-5ПК",
+            "height_mm": 900,
+            "manufacturer": "АО \"АМЗ\"",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 12,
+            "name": "КНЗ-5ПК",
+            "height_mm": 1130,
+            "manufacturer": "АО \"АМЗ\"",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 13,
+            "name": "КЗПУ-3ПК",
+            "height_mm": 600,
+            "manufacturer": "АО \"АМЗ\"",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 14,
+            "name": "КЗПУ-3ПК",
+            "height_mm": 900,
+            "manufacturer": "АО \"АМЗ\"",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 15,
+            "name": "КЗПУ-3ПК",
+            "height_mm": 1130,
+            "manufacturer": "АО \"АМЗ\"",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 16,
+            "name": "КЗПУ-5ПК",
+            "height_mm": 600,
+            "manufacturer": "АО \"АМЗ\"",
+            "max_speed_kmh": 32.4,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 17,
+            "name": "КЗПУ-5ПК",
+            "height_mm": 900,
+            "manufacturer": "АО \"АМЗ\"",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 18,
+            "name": "КЗПУ-5ПК",
+            "height_mm": 1130,
+            "manufacturer": "АО \"АМЗ\"",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 19,
+            "name": "КВ-3",
+            "height_mm": 1130,
+            "manufacturer": "н/д",
+            "max_speed_kmh": 30.6,
+            "capacity_thousand_ops": 6000
+        },
+        {
+            "id": 20,
+            "name": "ВЗКН-3",
+            "height_mm": 900,
+            "manufacturer": "н/д",
+            "max_speed_kmh": 32.4,
+            "capacity_thousand_ops": 6000
+        },
+        {
+            "id": 21,
+            "name": "ВЗКН-5",
+            "height_mm": 900,
+            "manufacturer": "н/д",
+            "max_speed_kmh": 32.4,
+            "capacity_thousand_ops": 6000
+        },
+        {
+            "id": 21,
+            "name": "КНП-5",
+            "height_mm": 900,
+            "manufacturer": "н/д",
+            "max_speed_kmh": 18.0,
+            "capacity_thousand_ops": 3000
+        },
+        {
+            "id": 22,
+            "name": "Т-50",
+            "height_mm": 600,
+            "manufacturer": "н/д",
+            "max_speed_kmh": 18.0,
+            "capacity_thousand_ops": 3000
+        },
+        {
+            "id": 23,
+            "name": "TW-4F",
+            "height_mm": 600,
+            "manufacturer": "ThyssenKrupp",
+            "max_speed_kmh": 32.4,
+            "capacity_thousand_ops": 5000
+        },
+        {
+            "id": 24,
+            "name": "TW-5EF",
+            "height_mm": 600,
+            "manufacturer": "ThyssenKrupp",
+            "max_speed_kmh": 36.0,
+            "capacity_thousand_ops": 6000
+        }
+    ]
+}

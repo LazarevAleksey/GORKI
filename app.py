@@ -4,11 +4,8 @@ from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from routers import (
     retarders_router, switches_router, devices_router,
-    parks_router, statistics_router, api_router
+    parks_router, statistics_router, api_router, constructor_router, rtu_router
 )
-# app.py - добавить импорт
-from routers import constructor_router
-
 
 
 app = FastAPI(title="Учёт оборудования сортировочной горки")
@@ -26,6 +23,7 @@ app.include_router(statistics_router)
 app.include_router(api_router)
 # Подключить роутер
 app.include_router(constructor_router)
+app.include_router(rtu_router)
 
 @app.get("/")
 async def home(request: Request):

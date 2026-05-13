@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+{% block title %}Добавление оборудования в РТУ{% endblock %}
+{% block extra_css %}
+<style>
+    .param-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+        align-items: center;
+    }
+    .param-row input {
+        flex: 1;
+    }
+    .passport-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+    .passport-section h4 {
+        margin-bottom: 10px;
+        color: #1a237e;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>📥 Добавление оборудования в РТУ</h2>
+    
+    <form method="POST" action="/rtu/device/add" id="deviceForm">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div>
+                <label>Тип оборудования *</label>
+                <!-- <select name="equipment_type_id" id="equipmentType" class="form-control" style="width:100%; padding:8px;" required onchange="updateModelList()">
+                    <option value="">-- выберите --</option>
+                    {% for et in equipment_types %}
+                    <option value="{{ et.id }}" data-name="{{ et.name }}">{{ et.name }}</option>
+                    {% endfor %}
+                </select> -->
+                <select name="equipment_type_id" id="equipmentType" class="form-control" required>
+                        <option value="">-- выберите --</option>
+                    {% for et in equipment_types %}
+                        <option value="{{ et.id }}" data-name="{{ et.name }}">{{ et.icon }} {{ et.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Модель *</label>
+                <select name="model" id="modelSelect" class="form-control" style="width:100%; padding:8px;" required>
+                    <option value="">-- сначала выберите тип --</option>
+                </select>
+            </div>
+            <div>
+                <label>Заводской номер</label>
+                <input type="text" name="serial_number" class="form-control" style="width:100%; padding:8px;" required>
+            </div>
+            <div>
+                <label>Инвентарный номер</label>
+                <input type="text" name="inv_number" class="form-control" style="width:100%; padding:8px;">
+            </div>
+            <div>
+                <label>Завод-изготовитель</label>
+                <input type="text" name="manufacturer" class="form-control" style="width:100%; padding:8px;" placeholder="Например: АО 'АМЗ'">
+            </div>
+            <div>
+                <label>Дата изготовления</label>
+                <input type="date" name="manufacture_date" class="form-control" style="width:100%; padding:8px;" required>
+            </div>
+            <div id="heightField" style="display: none;">
+                <label>Высота (мм)</label>
+                <input type="number" name="height_mm" id="height_mm" class="form-control" style="width:100%; padding:8px;">
+                <small style="color: #666;">Для замедлителей: 600, 900, 1130 мм</small>
+            </div>
+                        <!-- После поля "Дата изготовления" добавьте: -->
+
+            <div>
+                <label>Сетевой номер</label>
+                <input type="text" name="network_number" class="form-control" style="width:100%; padding:8px;">
+            </div>
+
+            <div>
+                <label>БЕ (по умолчанию 5067)</label>
+                <input type="text" name="be" class="form-control" style="width:100%; padding:8px;" value="5067">
+            </div>
+
+            <div>
+                <label>Наименование объекта по ОС-6</label>
+                <input type="text" name="os6_name" class="form-control" style="width:100%; padding:8px;" placeholder="Например: Вагонный замедлитель КЗ-3ПК">
+            </div>
+
+            <div>
+                <label>Год ввода по ОС-6</label>
+                <input type="number" name="os6_install_year" class="form-control" style="width:100%; padding:8px;" min="1900" max="2030">
+            </div>
+
+            <div>
+                <label>Год последнего капитального ремонта по ОС-6</label>
+                <input type="number" name="os6_last_repair" class="form-control" style="width:100%; padding:8px;" min="1900" max="2030">
+            </div>
+
+            <div>
+                <label>Год последней модернизации по ОС-6</label>
+                <input type="number" name="os6_last_modernization" class="form-control" style="width:100%; padding:8px;" min="1900" max="2030">
+            </div>
+            <div>
+                <label>Поставщик</label>
+                <input type="text" name="supplier" class="form-control" style="width:100%; padding:8px;">
+            </div>
+            <div style="grid-column: span 2;">
+                <label>Примечания</label>
+                <textarea name="notes" rows="2" class="form-control" style="width:100%; padding:8px;"></textarea>
+            </div>
+        </div>
+        
+        <!-- Паспортные данные (расширяемая секция) -->
+        <div class="passport-section" style="margin-top: 20px;">
+            <h4>📄 Паспортные данные (опционально)</h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                <div>
+                    <label>Номер паспорта</label>
+                    <input type="text" name="passport_number" class="form-control" style="width:100%; padding:8px;">
+                </div>
+                <div>
+                    <label>Дата выдачи паспорта</label>
+                    <input type="date" name="passport_date" class="form-control" style="width:100%; padding:8px;">
+                </div>
+                <div>
+                    <label>Сертификат соответствия</label>
+                    <input type="text" name="certificate_number" class="form-control" style="width:100%; padding:8px;">
+                </div>
+                <div>
+                    <label>Срок действия сертификата</label>
+                    <input type="date" name="certificate_expiry" class="form-control" style="width:100%; padding:8px;">
+                </div>
+            </div>
+            <div style="margin-top: 10px;">
+                <label>Дополнительные параметры (JSON)</label>
+                <textarea name="extra_params" rows="2" class="form-control" style="width:100%; padding:8px;" placeholder='{"max_speed": 8.5, "air_pressure": 0.65}'></textarea>
+                <small style="color: #666;">Произвольные параметры в формате JSON</small>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-primary">💾 Добавить в РТУ</button>
+            <a href="/rtu" class="btn" style="background:#e0e0e0;">❌ Отмена</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Данные из справочников (переданные из Python)
+    const equipmentTypes = {{ equipment_types | tojson }};
+    const retarderModels = {{ retarder_models | tojson }};
+    const switchModels = {{ switch_models | tojson }};
+    
+    function updateModelList() {
+        const typeSelect = document.getElementById('equipmentType');
+        const modelSelect = document.getElementById('modelSelect');
+        const heightField = document.getElementById('heightField');
+        
+        if (!typeSelect || !modelSelect) return;
+        
+        const selectedId = parseInt(typeSelect.value);
+        const selectedType = equipmentTypes.find(t => t.id === selectedId);
+        
+        if (!selectedType) {
+            modelSelect.innerHTML = '<option value="">-- выберите модель --</option>';
+            return;
+        }
+        
+        console.log('Выбран тип:', selectedType.name);
+        
+        modelSelect.innerHTML = '<option value="">-- выберите модель --</option>';
+        
+        if (selectedType.name === 'Замедлитель') {
+            if (heightField) heightField.style.display = 'block';
+            for (const model of retarderModels) {
+                const option = document.createElement('option');
+                option.value = model.id;  // ← здесь value = id
+                option.textContent = `${model.name} (${model.height_mm} мм) - ${model.manufacturer}`;
+                option.setAttribute('data-height', model.height_mm);
+                option.setAttribute('data-manufacturer', model.manufacturer);
+                option.setAttribute('data-name', model.name);
+                modelSelect.appendChild(option);
+            }
+        } else if (selectedType.name === 'Стрелка') {
+            if (heightField) heightField.style.display = 'none';
+            for (const model of switchModels) {
+                const option = document.createElement('option');
+                option.value = model.id;
+                option.textContent = model.name;
+                modelSelect.appendChild(option);
+            }
+        } else {
+            if (heightField) heightField.style.display = 'none';
+            const option = document.createElement('option');
+            option.value = '__custom__';
+            option.textContent = '-- ввести вручную --';
+            modelSelect.appendChild(option);
+        }
+    }
+    
+    // При выборе модели заполняем поля и устанавливаем model_id
+    document.getElementById('modelSelect').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const modelId = selectedOption.value;
+        const height = selectedOption.getAttribute('data-height');
+        const manufacturer = selectedOption.getAttribute('data-manufacturer');
+        const modelName = selectedOption.getAttribute('data-name');
+        
+        console.log('Выбрана модель ID:', modelId);
+        console.log('Имя модели:', modelName);
+        
+        // Создаём или обновляем скрытое поле для model_id
+        let modelIdInput = document.querySelector('input[name="model_id"]');
+        if (!modelIdInput) {
+            modelIdInput = document.createElement('input');
+            modelIdInput.type = 'hidden';
+            modelIdInput.name = 'model_id';
+            document.getElementById('deviceForm').appendChild(modelIdInput);
+        }
+        modelIdInput.value = modelId;
+        
+        // Создаём или обновляем скрытое поле для model_name
+        let modelNameInput = document.querySelector('input[name="model_name"]');
+        if (!modelNameInput) {
+            modelNameInput = document.createElement('input');
+            modelNameInput.type = 'hidden';
+            modelNameInput.name = 'model_name';
+            document.getElementById('deviceForm').appendChild(modelNameInput);
+        }
+        modelNameInput.value = modelName;
+        
+        if (height && document.getElementById('height_mm')) {
+            document.getElementById('height_mm').value = height;
+        }
+        if (manufacturer && document.querySelector('[name="manufacturer"]') && !document.querySelector('[name="manufacturer"]').value) {
+            document.querySelector('[name="manufacturer"]').value = manufacturer;
+        }
+    });
+    
+    // При выборе типа оборудования обновляем список моделей
+    const typeSelect = document.getElementById('equipmentType');
+    if (typeSelect) {
+        typeSelect.addEventListener('change', updateModelList);
+    }
+    
+    // Запускаем при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        updateModelList();
+    });
+</script>
+
+<!-- <script>
+    // Данные из справочников (переданные из Python)
+    const equipmentTypes = {{ equipment_types | tojson }};
+    const retarderModels = {{ retarder_models | tojson }};
+    const switchModels = {{ switch_models | tojson }};
+    
+    function updateModelList() {
+        const typeSelect = document.getElementById('equipmentType');
+        const modelSelect = document.getElementById('modelSelect');
+        const heightField = document.getElementById('heightField');
+        
+        if (!typeSelect || !modelSelect) return;
+        
+        const selectedId = parseInt(typeSelect.value);
+        const selectedType = equipmentTypes.find(t => t.id === selectedId);
+        
+        if (!selectedType) {
+            modelSelect.innerHTML = '<option value="">-- выберите модель --</option>';
+            return;
+        }
+        
+        console.log('Выбран тип:', selectedType.name);
+        
+        modelSelect.innerHTML = '<option value="">-- выберите модель --</option>';
+        
+        if (selectedType.name === 'Замедлитель') {
+            if (heightField) heightField.style.display = 'block';
+            for (const model of retarderModels) {
+                const option = document.createElement('option');
+                option.value = model.id;
+                option.textContent = `${model.name} (${model.height_mm} мм) - ${model.manufacturer}`;
+                option.setAttribute('data-height', model.height_mm);
+                option.setAttribute('data-manufacturer', model.manufacturer);
+                option.setAttribute('data-name', model.name);
+                modelSelect.appendChild(option);
+            }
+        } else if (selectedType.name === 'Стрелка') {
+            if (heightField) heightField.style.display = 'none';
+            for (const model of switchModels) {
+                const option = document.createElement('option');
+                option.value = model.id;
+                option.textContent = model.name;
+                modelSelect.appendChild(option);
+            }
+        } else {
+            if (heightField) heightField.style.display = 'none';
+            // Для других типов можно вводить модель вручную
+            const option = document.createElement('option');
+            option.value = '__custom__';
+            option.textContent = '-- ввести вручную --';
+            modelSelect.appendChild(option);
+        }
+    }
+    
+    // При выборе модели заполняем поля
+    document.getElementById('modelSelect').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const height = selectedOption.getAttribute('data-height');
+        const manufacturer = selectedOption.getAttribute('data-manufacturer');
+        
+        if (height && document.getElementById('height_mm')) {
+            document.getElementById('height_mm').value = height;
+        }
+        if (manufacturer && document.querySelector('[name="manufacturer"]') && !document.querySelector('[name="manufacturer"]').value) {
+            document.querySelector('[name="manufacturer"]').value = manufacturer;
+        }
+    });
+    
+    // При выборе типа оборудования обновляем список моделей
+    document.getElementById('equipmentType').addEventListener('change', updateModelList);
+    
+    // Запускаем при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        updateModelList();
+    });
+</script> -->
+
+<!-- <script>
+    // Данные моделей из справочника
+    const retarderModels = [
+        {id: 1, name: "КЗ-3ПК", height_mm: 600, manufacturer: "АО АМЗ"},
+        {id: 2, name: "КЗ-5ПК", height_mm: 600, manufacturer: "АО АМЗ"},
+        {id: 3, name: "КНЗ-3ПК", height_mm: 900, manufacturer: "АО АМЗ"},
+        {id: 4, name: "КНЗ-5ПК", height_mm: 900, manufacturer: "АО АМЗ"},
+        {id: 5, name: "КНП-5", height_mm: 1130, manufacturer: "АО АМЗ"},
+        {id: 6, name: "ВЗКН-5", height_mm: 900, manufacturer: "АО АМЗ"},
+        {id: 7, name: "TW-4F", height_mm: 600, manufacturer: "ThyssenKrupp"},
+        {id: 8, name: "TW-5EF", height_mm: 600, manufacturer: "ThyssenKrupp"},
+        {id: 9, name: "TKG16", height_mm: 600, manufacturer: "ThyssenKrupp"},
+    ];
+    
+    const switchModels = [
+        {id: 1, name: "Р65 1/9"},
+        {id: 2, name: "Р65 1/11"},
+        {id: 3, name: "Р50 1/9"},
+    ];
+    
+    function updateModelList() {
+        const typeSelect = document.getElementById('equipmentType');
+        const modelSelect = document.getElementById('modelSelect');
+        const heightField = document.getElementById('heightField');
+        
+        if (!typeSelect || !modelSelect) return;
+        
+        const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+        const typeName = selectedOption ? selectedOption.getAttribute('data-name') : null;
+        
+        console.log('Выбран тип:', typeName);
+        
+        modelSelect.innerHTML = '<option value="">-- выберите модель --</option>';
+        
+        if (typeName === 'Замедлитель') {
+            if (heightField) heightField.style.display = 'block';
+            for (const model of retarderModels) {
+                const option = document.createElement('option');
+                option.value = model.id;
+                option.textContent = `${model.name} (${model.height_mm} мм) - ${model.manufacturer}`;
+                option.setAttribute('data-height', model.height_mm);
+                option.setAttribute('data-manufacturer', model.manufacturer);
+                option.setAttribute('data-name', model.name);
+                modelSelect.appendChild(option);
+            }
+        } else if (typeName === 'Стрелка') {
+            if (heightField) heightField.style.display = 'none';
+            for (const model of switchModels) {
+                const option = document.createElement('option');
+                option.value = model.id;
+                option.textContent = model.name;
+                modelSelect.appendChild(option);
+            }
+        } else {
+            if (heightField) heightField.style.display = 'none';
+            const option = document.createElement('option');
+            option.value = '__custom__';
+            option.textContent = '-- ввести вручную --';
+            modelSelect.appendChild(option);
+        }
+    }
+    
+    // При выборе модели заполняем поле высоты
+    document.getElementById('modelSelect').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const height = selectedOption.getAttribute('data-height');
+        const manufacturer = selectedOption.getAttribute('data-manufacturer');
+        
+        if (height && document.getElementById('height_mm')) {
+            document.getElementById('height_mm').value = height;
+        }
+        if (manufacturer && document.querySelector('[name="manufacturer"]') && !document.querySelector('[name="manufacturer"]').value) {
+            document.querySelector('[name="manufacturer"]').value = manufacturer;
+        }
+    });
+    
+    // При выборе типа оборудования обновляем список моделей
+    const typeSelect = document.getElementById('equipmentType');
+    if (typeSelect) {
+        typeSelect.addEventListener('change', updateModelList);
+    }
+    
+    // Запускаем при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Страница загружена');
+        updateModelList();
+    });
+</script> -->
+{% endblock %}

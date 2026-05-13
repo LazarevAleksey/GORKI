@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+{% block title %}Ремонтно-технологический участок{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="/static/rtu.css">
+{% endblock %}
+{% block content %}
+<style>
+    /* ========== СТИЛИ ДЛЯ РТУ ========== */
+    /* ОТЛАДОЧНЫЙ СТИЛЬ - ПОСЛЕ ОБНОВЛЕНИЯ УДАЛИТЬ */
+    
+    .rtu-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 30px;
+        margin-bottom: 30px;
+        border: 5px solid red !important;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.2s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    
+    .stat-card .icon {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+    
+    .stat-card .number {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1a237e;
+    }
+    
+    .stat-card .label {
+        color: #666;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+    
+    /* Вкладки */
+    .rtu-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 25px;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 0;
+    }
+    
+    .rtu-tab {
+        padding: 10px 20px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        color: #666;
+        transition: all 0.2s;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .rtu-tab:hover {
+        color: #1a237e;
+        background: #f0f2f5;
+    }
+    
+    .rtu-tab.active {
+        color: #1a237e;
+        background: #e8eaf6;
+    }
+    
+    .rtu-tab .count {
+        display: inline-block;
+        background: #e0e0e0;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+        margin-left: 6px;
+        font-weight: normal;
+    }
+    
+    .rtu-tab.active .count {
+        background: #1a237e;
+        color: white;
+    }
+    
+    /* Таблицы */
+    .devices-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .devices-table th {
+        text-align: left;
+        padding: 12px;
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #555;
+        border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .devices-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e0e0e0;
+        vertical-align: middle;
+    }
+    
+    .devices-table tr:hover {
+        background: #f5f5f5;
+    }
+    
+    /* Кнопки действий */
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-icon {
+        padding: 6px 12px;
+        font-size: 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-repair { background: #fff3e0; color: #e65100; }
+    .btn-repair:hover { background: #ffe0b2; }
+    
+    .btn-install { background: #e8f5e9; color: #2e7d32; }
+    .btn-install:hover { background: #c8e6c9; }
+    
+    .btn-view { background: #e3f2fd; color: #1565c0; }
+    .btn-view:hover { background: #bbdefb; }
+    
+    /* Пустое состояние */
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .rtu-stats {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .devices-table {
+            font-size: 12px;
+        }
+        .action-buttons {
+            flex-direction: column;
+        }
+        .devices-table th, 
+        .devices-table td {
+            padding: 8px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .rtu-stats {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+    }
+</style>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+        <h2 style="margin: 0;">🏭 Ремонтно-технологический участок</h2>
+        <a href="/rtu/device/add" class="btn btn-primary" style="background: #2e7d32;">➕ Добавить оборудование</a>
+    </div>
+    
+    <!-- Статистика -->
+    <div class="rtu-stats">
+        <div class="stat-card">
+            <div class="icon">📦</div>
+            <div class="number">{{ in_rtu|length }}</div>
+            <div class="label">В РТУ</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon">🔧</div>
+            <div class="number">{{ in_repair|length }}</div>
+            <div class="label">В ремонте</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon">✅</div>
+            <div class="number">{{ ready|length }}</div>
+            <div class="label">Готовы к выдаче</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon">🏭</div>
+            <div class="number">{{ active|length }}</div>
+            <div class="label">На горках</div>
+        </div>
+    </div>
+    
+    <!-- Вкладки -->
+    <div class="rtu-tabs">
+        <button class="rtu-tab active" data-tab="in_rtu">📦 В РТУ <span class="count">{{ in_rtu|length }}</span></button>
+        <button class="rtu-tab" data-tab="in_repair">🔧 В ремонте <span class="count">{{ in_repair|length }}</span></button>
+        <button class="rtu-tab" data-tab="ready">✅ Готовы к выдаче <span class="count">{{ ready|length }}</span></button>
+        <button class="rtu-tab" data-tab="active">🏭 На горках <span class="count">{{ active|length }}</span></button>
+    </div>
+    
+    <!-- Вкладка: В РТУ -->
+    <div id="tab-in_rtu" class="tab-content">
+        {% if in_rtu %}
+        <table class="devices-table">
+            <thead>
+                <tr><th>Модель</th><th>Инв. номер</th><th>Зав. номер</th><th>Высота</th><th>Производитель</th><th>Действия</th></tr>
+            </thead>
+            <tbody>
+                {% for d in in_rtu %}
+                <tr>
+                    <td><strong>{{ d.model or '—' }}</strong></td>
+                    <td>{{ d.inv_number or '—' }}</td>
+                    <td>{{ d.serial_number or '—' }}</td>
+                    <td>{% if d.height_mm %}{{ d.height_mm }} мм{% else %}—{% endif %}</td>
+                    <td>{{ d.manufacturer or '—' }}</td>
+                    <td class="action-buttons">
+                        <a href="/rtu/device/{{ d.id }}/repair" class="btn-icon btn-repair">🔧 В ремонт</a>
+                        <a href="/rtu/device/{{ d.id }}/install" class="btn-icon btn-install">🚀 На горку</a>
+                        <a href="/devices/{{ d.id }}" class="btn-icon btn-view">📄</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">📭 Нет оборудования в РТУ</div>
+        {% endif %}
+    </div>
+    
+    <!-- Вкладка: В ремонте -->
+    <div id="tab-in_repair" class="tab-content" style="display: none;">
+        {% if in_repair %}
+        <table class="devices-table">
+            <thead>
+                <tr><th>Модель</th><th>Инв. номер</th><th>Дефекты</th><th>Дата приёма</th><th>Действия</th></tr>
+            </thead>
+            <tbody>
+                {% for d in in_repair %}
+                <tr>
+                    <td><strong>{{ d.model or '—' }}</strong></td>
+                    <td>{{ d.inv_number or '—' }}</td>
+                    <td>{{ d.defects or '—' }}</td>
+                    <td>{{ d.repair_date or '—' }}</td>
+                    <td class="action-buttons">
+                        <a href="/rtu/repair/{{ d.repair_id }}" class="btn-icon btn-view">📋 Детали</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">🔧 Нет оборудования в ремонте</div>
+        {% endif %}
+    </div>
+    
+    <!-- Вкладка: Готовы к выдаче -->
+    <div id="tab-ready" class="tab-content" style="display: none;">
+        {% if ready %}
+        <table class="devices-table">
+            <thead>
+                <tr><th>Модель</th><th>Инв. номер</th><th>Дата ремонта</th><th>Действия</th></tr>
+            </thead>
+            <tbody>
+                {% for d in ready %}
+                <tr>
+                    <td><strong>{{ d.model or '—' }}</strong></td>
+                    <td>{{ d.inv_number or '—' }}</td>
+                    <td>{{ d.completed_date or '—' }}</td>
+                    <td class="action-buttons">
+                        <a href="/rtu/device/{{ d.id }}/install" class="btn-icon btn-install">🚀 На горку</a>
+                        <a href="/devices/{{ d.id }}" class="btn-icon btn-view">📄</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">✅ Нет готовых к выдаче изделий</div>
+        {% endif %}
+    </div>
+    
+    <!-- Вкладка: На горках -->
+    <div id="tab-active" class="tab-content" style="display: none;">
+        {% if active %}
+        <table class="devices-table">
+            <thead>
+                <tr><th>Модель</th><th>Инв. номер</th><th>Горка</th><th>Позиция</th><th>Наработка</th><th>Действия</th></tr>
+            </thead>
+            <tbody>
+                {% for d in active %}
+                <tr>
+                    <td><strong>{{ d.model or '—' }}</strong></td>
+                    <td>{{ d.inv_number or '—' }}</td>
+                    <td>{{ d.park_name or '—' }}</td>
+                    <td>{{ d.tor_position or '—' }}</td>
+                    <td>{% if d.total_operations %}{{ "{:,}".format(d.total_operations).replace(',', ' ') }} тыс.{% else %}—{% endif %}</td>
+                    <td class="action-buttons">
+                        <a href="/devices/{{ d.id }}" class="btn-icon btn-view">📄</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">🏭 Нет оборудования на горках</div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Переключение вкладок
+    document.querySelectorAll('.rtu-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Убираем активный класс со всех вкладок
+            document.querySelectorAll('.rtu-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Скрываем все содержимое вкладок
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Показываем выбранную вкладку
+            const tabId = this.getAttribute('data-tab');
+            document.getElementById(`tab-${tabId}`).style.display = 'block';
+        });
+    });
+</script>
+{% endblock %}

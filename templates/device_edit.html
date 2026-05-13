@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Редактирование устройства{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>✏️ Редактирование устройства: {{ device.model or '—' }}</h2>
+    
+    <form method="POST" action="/devices/{{ device.id }}/edit">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div>
+                <label>Тип оборудования *</label>
+                <select name="equipment_type_id" class="form-control" style="width:100%; padding:8px;" required>
+                    <option value="">-- выберите тип --</option>
+                    {% for et in equipment_types %}
+                    <option value="{{ et.id }}" {% if et.id == device.equipment_type_id %}selected{% endif %}>{{ et.icon or '' }} {{ et.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Модель</label>
+                <input type="text" name="model" class="form-control" style="width:100%; padding:8px;" value="{{ device.model or '' }}">
+            </div>
+            <div>
+                <label>Инвентарный номер</label>
+                <input type="text" name="inv_number" class="form-control" style="width:100%; padding:8px;" value="{{ device.inv_number or '' }}">
+            </div>
+            <div>
+                <label>Заводской номер</label>
+                <input type="text" name="serial_number" class="form-control" style="width:100%; padding:8px;" value="{{ device.serial_number or '' }}">
+            </div>
+            <div>
+                <label>Высота (мм)</label>
+                <input type="number" name="height_mm" class="form-control" style="width:100%; padding:8px;" value="{{ device.height_mm or '' }}">
+            </div>
+            <div>
+                <label>Производитель</label>
+                <input type="text" name="manufacturer" class="form-control" style="width:100%; padding:8px;" value="{{ device.manufacturer or '' }}">
+            </div>
+            <div>
+                <label>Дата изготовления</label>
+                <input type="date" name="manufacture_date" class="form-control" style="width:100%; padding:8px;" value="{{ device.manufacture_date or '' }}">
+            </div>
+            <div>
+                <label>Дата установки</label>
+                <input type="date" name="install_date" class="form-control" style="width:100%; padding:8px;" value="{{ device.install_date or '' }}">
+            </div>
+            <div>
+                <label>Горка</label>
+                <select name="park_id" class="form-control" style="width:100%; padding:8px;">
+                    <option value="">-- не выбрано --</option>
+                    {% for park in parks %}
+                    <option value="{{ park.id }}" {% if park.id == device.park_id %}selected{% endif %}>{{ park.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Участок пути</label>
+                <select name="track_section_id" class="form-control" style="width:100%; padding:8px;">
+                    <option value="">-- не выбрано --</option>
+                    {% for section in sections %}
+                    <option value="{{ section.id }}" {% if section.id == device.track_section_id %}selected{% endif %}>{{ section.code }} - {{ section.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Тормозная позиция</label>
+                <select name="brake_position_id" class="form-control" style="width:100%; padding:8px;">
+                    <option value="">-- не выбрано --</option>
+                    {% for bp in brake_positions %}
+                    <option value="{{ bp.id }}" {% if bp.id == device.brake_position_id %}selected{% endif %}>{{ bp.position_number }} позиция ({{ bp.position_type or '—' }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Статус</label>
+                <select name="status" class="form-control" style="width:100%; padding:8px;">
+                    <option value="in_rtu" {% if device.status == 'in_rtu' %}selected{% endif %}>📦 В РТУ</option>
+                    <option value="in_repair" {% if device.status == 'in_repair' %}selected{% endif %}>🔧 В ремонте</option>
+                    <option value="active" {% if device.status == 'active' %}selected{% endif %}>✅ В эксплуатации</option>
+                    <option value="reserve" {% if device.status == 'reserve' %}selected{% endif %}>📦 В запасе</option>
+                    <option value="written_off" {% if device.status == 'written_off' %}selected{% endif %}>❌ Списан</option>
+                </select>
+            </div>
+            <div style="grid-column: span 2;">
+                <label>Примечания</label>
+                <textarea name="notes" rows="3" class="form-control" style="width:100%; padding:8px;">{{ device.notes or '' }}</textarea>
+            </div>
+        </div>
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+            <a href="/devices/{{ device.id }}" class="btn" style="background:#e0e0e0;">❌ Отмена</a>
+            <button type="button" onclick="if(confirm('Удалить устройство?')) fetch('/devices/{{ device.id }}/delete', {method:'POST'}).then(()=>window.location='/devices')" class="btn" style="background:#dc3545; color:white; margin-left:auto;">🗑️ Удалить</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

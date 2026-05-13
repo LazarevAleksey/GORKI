@@ -4,7 +4,7 @@
 <style>
     .constructor-container {
         display: flex;
-        gap: 20px;
+ gap: 20px;
         min-height: 70vh;
     }
     
@@ -30,7 +30,7 @@
         border-radius: 8px;
         padding: 10px;
         margin-bottom: 10px;
-        cursor: grab;
+        cursor: pointer;
         transition: all 0.2s;
         display: flex;
         align-items: center;
@@ -41,10 +41,6 @@
         background: #e3f2fd;
         border-color: #1a237e;
         transform: translateX(5px);
-    }
-    
-    .palette-item:active {
-        cursor: grabbing;
     }
     
     /* Холст конструктора */
@@ -99,6 +95,13 @@
         background: #f8f9fa;
         border-radius: 8px;
         border-left: 3px solid;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .subsection:hover {
+        background: #e3f2fd;
+        transform: translateX(5px);
     }
     
     /* Типы участков */
@@ -121,14 +124,32 @@
         margin: 3px;
     }
     
-    .retarder-badge {
-        background: #ffebee;
-        color: #c62828;
-    }
-    
     .switch-badge {
         background: #fff3e0;
         color: #e65100;
+    }
+    
+    /* Бейджи */
+    .section-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        background: #e0e0e0;
+        margin-left: 8px;
+    }
+    
+    .section-badge.switch { background: #fff3e0; color: #e65100; }
+    .section-badge.measuring { background: #e8f5e9; color: #2e7d32; }
+    
+    .section-code {
+        font-weight: 700;
+        color: #1a237e;
+    }
+    
+    .section-name {
+        color: #666;
+        font-size: 14px;
     }
     
     /* Кнопки */
@@ -165,6 +186,8 @@
         padding: 25px;
         width: 500px;
         max-width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
     }
     
     .modal-header {
@@ -173,29 +196,29 @@
         margin-bottom: 20px;
     }
     
-    .form-group {
-        margin-bottom: 15px;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 500;
-    }
-    
-    .form-group input, .form-group select {
-        width: 100%;
-        padding: 8px;
+    /* Селектор горки */
+    .park-selector {
+        margin-left: 15px;
+        padding: 8px 12px;
         border: 1px solid #ddd;
         border-radius: 6px;
+        font-size: 14px;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="margin: 0;">🏗️ Конструктор горки</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center;">
+            <h2 style="margin: 0;">🏗️ Конструктор горки</h2>
+            <select id="parkSelector" class="park-selector">
+                <option value="">-- Выберите горку --</option>
+                {% for park in parks %}
+                <option value="{{ park.id }}">{{ park.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
         <div>
             <button onclick="saveScheme()" class="btn btn-primary">💾 Сохранить</button>
             <button onclick="exportScheme()" class="btn">📤 Экспорт</button>
@@ -208,37 +231,37 @@
         <div class="palette">
             <h3>📦 Палитра элементов</h3>
             
-            <div class="palette-item" draggable="true" data-type="section" data-section-type="1">
+            <div class="palette-item" data-type="section" data-section-type="1">
                 <span>🛤️</span> Бесстрелочный участок
             </div>
-            <div class="palette-item" draggable="true" data-type="section" data-section-type="1" data-is-switch="true">
+            <div class="palette-item" data-type="section" data-section-type="1" data-is-switch="true">
                 <span>🔀</span> Стрелочный участок
             </div>
-            <div class="palette-item" draggable="true" data-type="brake_position" data-pos-type="ВТП">
+            <div class="palette-item" data-type="brake_position" data-pos-type="ВТП">
                 <span>🛑</span> Тормозная позиция (ВТП)
             </div>
-            <div class="palette-item" draggable="true" data-type="brake_position" data-pos-type="СТП">
+            <div class="palette-item" data-type="brake_position" data-pos-type="СТП">
                 <span>🛑</span> Тормозная позиция (СТП)
             </div>
-            <div class="palette-item" draggable="true" data-type="brake_position" data-pos-type="НТП">
+            <div class="palette-item" data-type="brake_position" data-pos-type="НТП">
                 <span>🛑</span> Тормозная позиция (НТП)
             </div>
-            <div class="palette-item" draggable="true" data-type="device" data-device-type="Светофор">
+            <div class="palette-item" data-type="device" data-device-type="Светофор">
                 <span>🚦</span> Светофор
             </div>
-            <div class="palette-item" draggable="true" data-type="device" data-device-type="Стрелка">
+            <div class="palette-item" data-type="device" data-device-type="Стрелка">
                 <span>🚉</span> Стрелка
             </div>
-            <div class="palette-item" draggable="true" data-type="device" data-device-type="Рельсовая цепь">
+            <div class="palette-item" data-type="device" data-device-type="Рельсовая цепь">
                 <span>🔌</span> Рельсовая цепь
             </div>
-            <div class="palette-item" draggable="true" data-type="device" data-device-type="ФЭУ-ИК">
+            <div class="palette-item" data-type="device" data-device-type="ФЭУ-ИК">
                 <span>📡</span> ФЭУ-ИК
             </div>
-            <div class="palette-item" draggable="true" data-type="device" data-device-type="РТД-С">
+            <div class="palette-item" data-type="device" data-device-type="РТД-С">
                 <span>📡</span> РТД-С
             </div>
-            <div class="palette-item" draggable="true" data-type="device" data-device-type="Замедлитель">
+            <div class="palette-item" data-type="device" data-device-type="Замедлитель">
                 <span>🛑</span> Замедлитель
             </div>
         </div>
@@ -246,9 +269,8 @@
         <!-- Холст -->
         <div class="canvas">
             <div class="hill-scheme" id="hillScheme">
-                <!-- Схема будет загружена динамически -->
                 <div style="text-align: center; padding: 40px; color: #999;">
-                    ⏳ Загрузка схемы горки...
+                    🏭 Выберите горку из списка слева
                 </div>
             </div>
         </div>
@@ -263,7 +285,7 @@
             <button onclick="closeTemplateModal()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
         </div>
         <div id="templatesList">
-            <!-- Список шаблонов -->
+            <p>Загрузка...</p>
         </div>
         <div style="margin-top: 20px;">
             <label>Сохранить текущую схему как шаблон:</label>
@@ -277,380 +299,18 @@
     let currentParkId = null;
     let currentScheme = null;
     
-    // Загрузка горки
-    async function loadPark(parkId) {
-        currentParkId = parkId;
-        const response = await fetch(`/constructor/park/${parkId}`);
-        const scheme = await response.json();
-        currentScheme = scheme;
-        renderScheme(scheme);
-    }
-    
-    // Отрисовка схемы
-    function renderScheme(scheme) {
-        const container = document.getElementById('hillScheme');
-        if (!scheme || !scheme.sections) {
-            container.innerHTML = '<div style="text-align: center; padding: 40px;">🏭 Выберите горку для редактирования</div>';
-            return;
-        }
-        
-        // Группировка по частям горки
-        const overhead = scheme.sections.filter(s => s.section_type_name === 'надвижная часть');
-        const descending = scheme.sections.filter(s => s.section_type_name === 'спускная часть');
-        const parking = scheme.sections.filter(s => s.section_type_name === 'парковая часть');
-        
-        let html = `
-            <div class="section section-overhead">
-                <div class="section-header" onclick="toggleSection(this)">
-                    <span class="section-title">📈 НАДВИЖНАЯ ЧАСТЬ</span>
-                    <span class="section-controls">
-                        <button class="btn-icon" onclick="addSection(event, 'надвижная часть')">➕</button>
-                    </span>
-                </div>
-                <div class="section-content">
-                    ${renderSections(overhead)}
-                </div>
-            </div>
-            
-            <div class="section section-descending">
-                <div class="section-header" onclick="toggleSection(this)">
-                    <span class="section-title">📉 СПУСКНАЯ ЧАСТЬ</span>
-                    <span class="section-controls">
-                        <button class="btn-icon" onclick="addSection(event, 'спускная часть')">➕</button>
-                    </span>
-                </div>
-                <div class="section-content">
-                    ${renderSections(descending)}
-                </div>
-            </div>
-            
-            <div class="section section-parking">
-                <div class="section-header" onclick="toggleSection(this)">
-                    <span class="section-title">🏢 ПАРКОВАЯ ЧАСТЬ</span>
-                    <span class="section-controls">
-                        <button class="btn-icon" onclick="addSection(event, 'парковая часть')">➕</button>
-                    </span>
-                </div>
-                <div class="section-content">
-                    ${renderSections(parking)}
-                </div>
-            </div>
-        `;
-        
-        container.innerHTML = html;
-    }
-    
-    function renderSections(sections) {
-        if (!sections || sections.length === 0) return '<div style="padding: 10px; color: #999;">Нет участков</div>';
-        
-        let html = '';
-        for (const section of sections) {
-            const isSwitch = section.is_switch_section ? true : false;
-            const zoneClass = section.zone_type_name === 'головная зона' ? 'zone-golova' : (section.zone_type_name === 'пучковая зона' ? 'zone-puchok' : '');
-            
-            html += `
-                <div class="subsection ${zoneClass}" style="margin: 15px 0;" data-id="${section.id}" data-type="section">
-                    <div class="section-header" style="margin-bottom: 5px;">
-                        <strong>${section.code || section.name} (${section.name})</strong>
-                        <div class="section-controls">
-                            <button class="btn-icon" onclick="editSection('${section.id}')">✏️</button>
-                            <button class="btn-icon" onclick="deleteSection('${section.id}')">🗑️</button>
-                        </div>
-                    </div>
-                    <div style="font-size: 12px; color: #666;">
-                        ${section.params?.length_m ? `Длина: ${section.params.length_m} м | ` : ''}
-                        ${section.has_track_circuit ? '🔌 РЦ | ' : ''}
-                        ${section.has_axle_counter ? '🔢 Счёт осей' : ''}
-                    </div>
-                    ${section.devices ? renderDevices(section.devices) : ''}
-                    ${section.brake_positions ? renderBrakePositions(section.brake_positions) : ''}
-                    ${section.switches ? renderSwitches(section.switches) : ''}
-                </div>
-            `;
-        }
-        return html;
-    }
-    
-    function renderDevices(devices) {
-        if (!devices || devices.length === 0) return '';
-        let html = '<div style="margin-top: 8px;"><small>📟 Оборудование:</small><br>';
-        for (const d of devices) {
-            html += `<span class="device-badge">${d.icon || '📟'} ${d.name || d.model}</span>`;
-        }
-        html += '</div>';
-        return html;
-    }
-    
-    function renderBrakePositions(positions) {
-        if (!positions || positions.length === 0) return '';
-        let html = '<div style="margin-top: 8px;"><small>🛑 Тормозные позиции:</small><br>';
-        for (const bp of positions) {
-            html += `<div style="margin: 5px 0; padding: 5px 10px; background: #e8f5e9; border-radius: 8px;">
-                        <strong>${bp.position_number} позиция (${bp.position_type})</strong>
-                        <span style="font-size: 11px; color: #666;"> — ${bp.num_retarders} замедлителей, ${bp.max_speed_kmh || '—'} км/ч</span>
-                        <button class="btn-icon" onclick="editBrakePosition('${bp.id}')">✏️</button>
-                    </div>`;
-        }
-        html += '</div>';
-        return html;
-    }
-    
-    function renderSwitches(switches) {
-        if (!switches || switches.length === 0) return '';
-        let html = '<div style="margin-top: 8px;"><small>🚉 Стрелки:</small><br>';
-        for (const s of switches) {
-            html += `<span class="device-badge switch-badge">🚉 ${s.switch_number} (${s.switch_type})</span>`;
-        }
-        html += '</div>';
-        return html;
-    }
-    
-    // Сохранение схемы
-    async function saveScheme() {
-        if (!currentParkId) {
-            alert('Выберите горку');
-            return;
-        }
-        
-        const response = await fetch(`/constructor/park/${currentParkId}/save`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(currentScheme)
-        });
-        
-        if (response.ok) {
-            alert('Схема сохранена!');
-        } else {
-            alert('Ошибка сохранения');
-        }
-    }
-    
-    // Экспорт
-    function exportScheme() {
-        if (!currentScheme) return;
-        const dataStr = JSON.stringify(currentScheme, null, 2);
-        const blob = new Blob([dataStr], {type: 'application/json'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `park_${currentParkId}_scheme.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-    }
-    
-    // Выбор горки из выпадающего списка (нужно добавить в base.html или сюда)
-    function initParkSelector() {
-        const select = document.createElement('select');
-        select.className = 'filter-select';
-        select.style.marginLeft = '15px';
-        select.innerHTML = '<option value="">-- Выберите горку --</option>';
-        
-        fetch('/parks')
-            .then(r => r.json())
-            .then(parks => {
-                for (const park of parks) {
-                    select.innerHTML += `<option value="${park.id}">${park.name}</option>`;
-                }
-                select.onchange = (e) => {
-                    if (e.target.value) loadPark(e.target.value);
-                };
-                document.querySelector('.card h2').after(select);
-            });
-    }
-    
-    function toggleSection(header) {
-        const content = header.parentElement.querySelector('.section-content');
-        if (content) {
-            content.style.display = content.style.display === 'none' ? 'block' : 'none';
-        }
-    }
-    
-    // Drag & drop
-    document.querySelectorAll('.palette-item').forEach(item => {
-        item.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('text/plain', JSON.stringify({
-                type: item.dataset.type,
-                sectionType: item.dataset.sectionType,
-                isSwitch: item.dataset.isSwitch,
-                posType: item.dataset.posType,
-                deviceType: item.dataset.deviceType
-            }));
-            e.dataTransfer.effectAllowed = 'copy';
-        });
-    });
-    
-    document.getElementById('hillScheme').addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';
-    });
-    
-    document.getElementById('hillScheme').addEventListener('drop', (e) => {
-        e.preventDefault();
-        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-        console.log('Dropped:', data);
-        // Здесь логика добавления элемента в схему
-        alert(`Добавление ${data.type} в схему будет реализовано`);
-    });
-    
-    // Инициализация
-    initParkSelector();
-    // Добавьте этот код после существующего скрипта, перед closing script tag
-
-    // Функции для работы с модальным окном шаблонов
-    function showTemplateModal() {
-        const modal = document.getElementById('templateModal');
-        modal.style.display = 'flex';
-        loadTemplatesList();
-    }
-    
-    function closeTemplateModal() {
-        const modal = document.getElementById('templateModal');
-        modal.style.display = 'none';
-    }
-    
-    async function loadTemplatesList() {
-        const container = document.getElementById('templatesList');
-        const response = await fetch('/constructor/templates');
-        const templates = await response.json();
-        
-        let html = '<ul style="list-style: none; padding: 0;">';
-        for (const t of templates) {
-            html += `
-                <li style="padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
-                    <span><strong>${t.name}</strong> ${t.is_default ? '⭐' : ''}</span>
-                    <div>
-                        <button onclick="applyTemplate(${t.id})" class="btn btn-sm">Применить</button>
-                    </div>
-                </li>
-            `;
-        }
-        html += '</ul>';
-        container.innerHTML = html;
-    }
-    
-    async function applyTemplate(templateId) {
-        if (!currentParkId) {
-            alert('Сначала выберите горку');
-            closeTemplateModal();
-            return;
-        }
-        
-        const response = await fetch(`/constructor/template/${templateId}/apply/${currentParkId}`, {
-            method: 'POST'
-        });
-        
-        if (response.ok) {
-            alert('Шаблон применён!');
-            loadPark(currentParkId);
-            closeTemplateModal();
-        } else {
-            alert('Ошибка применения шаблона');
-        }
-    }
-    
-    async function saveAsTemplate() {
-        const name = document.getElementById('templateName').value;
-        if (!name) {
-            alert('Введите название шаблона');
-            return;
-        }
-        if (!currentParkId) {
-            alert('Сначала выберите горку');
-            return;
-        }
-        
-        const response = await fetch('/constructor/template/create', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name: name, park_id: currentParkId})
-        });
-        
-        if (response.ok) {
-            alert('Шаблон сохранён!');
-            document.getElementById('templateName').value = '';
-            loadTemplatesList();
-        } else {
-            alert('Ошибка сохранения шаблона');
-        }
-    }
-    
-    // Функции для редактирования
-    function addSection(event, partName) {
-        event.stopPropagation();
-        const sectionName = prompt('Введите название участка:');
-        if (!sectionName) return;
-        
-        const sectionCode = prompt('Введите код участка (например, НП-1):');
-        if (!sectionCode) return;
-        
-        // Добавляем новый участок в текущую схему
-        const newSection = {
-            id: Date.now(),
-            element_type: 'section',
-            name: sectionName,
-            code: sectionCode,
-            section_type_id: partName === 'надвижная часть' ? 1 : (partName === 'спускная часть' ? 2 : 3),
-            sort_order: currentScheme.sections.length + 1,
-            params: {}
+    // Инициализация селектора горки
+    const parkSelector = document.getElementById('parkSelector');
+    if (parkSelector) {
+        parkSelector.onchange = function() {
+            if (this.value) {
+                loadPark(this.value);
+            } else {
+                document.getElementById('hillScheme').innerHTML = '<div style="text-align: center; padding: 40px;">🏭 Выберите горку из списка слева</div>';
+                currentParkId = null;
+                currentScheme = null;
+            }
         };
-        
-        currentScheme.sections.push(newSection);
-        renderScheme(currentScheme);
-    }
-    
-    function editSection(sectionId) {
-        const section = currentScheme.sections.find(s => s.id == sectionId);
-        if (!section) return;
-        
-        const newName = prompt('Введите новое название:', section.name);
-        if (newName) section.name = newName;
-        
-        const newCode = prompt('Введите новый код:', section.code);
-        if (newCode) section.code = newCode;
-        
-        renderScheme(currentScheme);
-    }
-    
-    function deleteSection(sectionId) {
-        if (!confirm('Удалить этот участок?')) return;
-        currentScheme.sections = currentScheme.sections.filter(s => s.id != sectionId);
-        renderScheme(currentScheme);
-    }
-    
-    function editBrakePosition(positionId) {
-        alert('Редактирование тормозной позиции будет доступно в следующей версии');
-    }
-    
-    // Инициализация селектора горки с загрузкой из Django
-    function initParkSelector() {
-        const container = document.querySelector('.card h2');
-        if (!container) return;
-        
-        const select = document.createElement('select');
-        select.className = 'filter-select';
-        select.style.marginLeft = '15px';
-        select.style.padding = '8px';
-        select.innerHTML = '<option value="">-- Выберите горку --</option>';
-        
-        // Получаем список горок из API
-        fetch('/parks')
-            .then(r => r.json())
-            .then(parks => {
-                for (const park of parks) {
-                    select.innerHTML += `<option value="${park.id}">${park.name}</option>`;
-                }
-                select.onchange = (e) => {
-                    if (e.target.value) {
-                        loadPark(e.target.value);
-                    } else {
-                        document.getElementById('hillScheme').innerHTML = '<div style="text-align: center; padding: 40px;">🏭 Выберите горку для редактирования</div>';
-                        currentParkId = null;
-                        currentScheme = null;
-                    }
-                };
-                container.parentElement.insertBefore(select, container.nextSibling);
-            })
-            .catch(err => console.error('Ошибка загрузки горок:', err));
     }
     
     // Загрузка горки
@@ -666,7 +326,7 @@
     function renderScheme(scheme) {
         const container = document.getElementById('hillScheme');
         if (!scheme || !scheme.sections || scheme.sections.length === 0) {
-            container.innerHTML = '<div style="text-align: center; padding: 40px;">🏭 Нет данных. Начните добавлять участки с палитры слева</div>';
+            container.innerHTML = '<div style="text-align: center; padding: 40px;">🏭 Нет данных. Нажмите на элемент палитры слева для добавления участков</div>';
             return;
         }
         
@@ -704,12 +364,13 @@
         
         let html = '';
         for (const section of sections) {
-            const isSwitch = section.params?.is_switch_section ? true : false;
-            const isMeasuring = section.params?.is_measuring_section ? true : false;
+            const zoneClass = section.zone_type_name === 'головная зона' ? 'zone-golova' : (section.zone_type_name === 'пучковая зона' ? 'zone-puchok' : '');
+            const isSwitch = section.is_switch_section || section.params?.is_switch_section;
+            const isMeasuring = section.params?.is_measuring_section;
             
             html += `
-                <div class="subsection" data-id="${section.id || section.code}" style="margin: 10px 0; padding: 12px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #1a237e;">
-                    <div class="section-header" style="margin-bottom: 5px;">
+                <div class="subsection ${zoneClass}" data-id="${section.id || section.code}">
+                    <div class="section-header">
                         <div>
                             <strong class="section-code">${section.code || '—'}</strong>
                             <span class="section-name"> — ${section.name || 'Без названия'}</span>
@@ -721,7 +382,7 @@
                             <button class="btn-icon" onclick="deleteSection('${section.id || section.code}')">🗑️</button>
                         </div>
                     </div>
-                    <div style="font-size: 12px; color: #666;">
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
                         ${section.params?.length_m ? `📏 Длина: ${section.params.length_m} м | ` : ''}
                         ${section.params?.has_track_circuit ? '🔌 РЦ | ' : ''}
                         ${section.params?.has_axle_counter ? '🔢 Счёт осей | ' : ''}
@@ -769,50 +430,82 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `park_${currentParkId}_scheme_${new Date().toISOString().slice(0,19)}.json`;
+        a.download = `park_${currentParkId}_scheme.json`;
         a.click();
         URL.revokeObjectURL(url);
     }
     
-    // Drag & Drop (альтернативный вариант - клик)
+    // Добавление участка (клик на элемент палитры)
     document.querySelectorAll('.palette-item').forEach(item => {
-        // Добавляем возможность добавления по клику
         item.addEventListener('click', () => {
             if (!currentParkId) {
                 alert('Сначала выберите горку');
                 return;
             }
             
-            const data = {
-                type: item.dataset.type,
-                sectionType: item.dataset.sectionType,
-                isSwitch: item.dataset.isSwitch,
-                posType: item.dataset.posType,
-                deviceType: item.dataset.deviceType
-            };
-            
-            const elementName = item.innerText.trim();
-            const sectionName = prompt(`Введите название для ${elementName}:`);
+            const sectionName = prompt('Введите название участка:');
             if (!sectionName) return;
             
-            const sectionCode = prompt('Введите код (например, НП-1):');
+            const sectionCode = prompt('Введите код участка (например, НП-1):');
             if (!sectionCode) return;
             
-            // Добавляем в текущую схему
+            let sectionTypeId = parseInt(item.dataset.sectionType) || 1;
+            
             const newSection = {
                 id: Date.now(),
-                element_type: data.type,
                 name: sectionName,
                 code: sectionCode,
-                section_type_id: data.sectionType || 1,
-                is_switch_section: data.isSwitch === 'true',
+                section_type_id: sectionTypeId,
+                is_switch_section: item.dataset.isSwitch === 'true',
                 params: {}
             };
             
+            if (!currentScheme.sections) currentScheme.sections = [];
             currentScheme.sections.push(newSection);
             renderScheme(currentScheme);
         });
     });
+    
+    function addSection(event, partName) {
+        event.stopPropagation();
+        const sectionName = prompt('Введите название участка:');
+        if (!sectionName) return;
+        
+        const sectionCode = prompt('Введите код участка (например, НП-1):');
+        if (!sectionCode) return;
+        
+        let sectionTypeId = partName === 'НАДВИЖНАЯ ЧАСТЬ' ? 1 : (partName === 'СПУСКНАЯ ЧАСТЬ' ? 2 : 3);
+        
+        const newSection = {
+            id: Date.now(),
+            name: sectionName,
+            code: sectionCode,
+            section_type_id: sectionTypeId,
+            params: {}
+        };
+        
+        currentScheme.sections.push(newSection);
+        renderScheme(currentScheme);
+    }
+    
+    function editSection(sectionId) {
+        const section = currentScheme.sections.find(s => s.id == sectionId);
+        if (!section) return;
+        
+        const newName = prompt('Введите новое название:', section.name);
+        if (newName) section.name = newName;
+        
+        const newCode = prompt('Введите новый код:', section.code);
+        if (newCode) section.code = newCode;
+        
+        renderScheme(currentScheme);
+    }
+    
+    function deleteSection(sectionId) {
+        if (!confirm('Удалить этот участок?')) return;
+        currentScheme.sections = currentScheme.sections.filter(s => s.id != sectionId);
+        renderScheme(currentScheme);
+    }
     
     function toggleSection(header) {
         if (!header) return;
@@ -822,26 +515,89 @@
         }
     }
     
-    // Запуск инициализации после загрузки страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        initParkSelector();
-        
-        // Настройка Drag & Drop для холста
-        const canvas = document.getElementById('hillScheme');
-        if (canvas) {
-            canvas.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'copy';
-            });
+    // Функции для работы с модальным окном шаблонов
+    function showTemplateModal() {
+        const modal = document.getElementById('templateModal');
+        modal.style.display = 'flex';
+        loadTemplatesList();
+    }
+    
+    function closeTemplateModal() {
+        const modal = document.getElementById('templateModal');
+        modal.style.display = 'none';
+    }
+    
+    async function loadTemplatesList() {
+        const container = document.getElementById('templatesList');
+        try {
+            const response = await fetch('/constructor/templates');
+            const templates = await response.json();
             
-            canvas.addEventListener('drop', (e) => {
-                e.preventDefault();
-                const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-                console.log('Dropped:', data);
-                alert(`Добавление ${data.type} в схему\n\nИспользуйте клик на элемент палитры для добавления`);
-            });
+            let html = '<ul style="list-style: none; padding: 0;">';
+            for (const t of templates) {
+                html += `
+                    <li style="padding: 10px; border-bottom: 1px solid #eee;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span><strong>${t.name}</strong> ${t.is_default ? '⭐' : ''}</span>
+                            <button onclick="applyTemplate(${t.id})" class="btn btn-sm">Применить</button>
+                        </div>
+                    </li>
+                `;
+            }
+            html += '</ul>';
+            container.innerHTML = html;
+        } catch(e) {
+            container.innerHTML = '<p>Ошибка загрузки шаблонов</p>';
         }
-    });
+    }
+    
+    async function applyTemplate(templateId) {
+        if (!currentParkId) {
+            alert('Сначала выберите горку');
+            return;
+        }
+        
+        const response = await fetch(`/constructor/template/${templateId}/apply/${currentParkId}`, {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            alert('Шаблон применён!');
+            loadPark(currentParkId);
+            closeTemplateModal();
+        } else {
+            alert('Ошибка применения шаблона');
+        }
+    }
+    
+    async function saveAsTemplate() {
+        const name = document.getElementById('templateName').value;
+        if (!name) {
+            alert('Введите название шаблона');
+            return;
+        }
+        if (!currentParkId) {
+            alert('Сначала выберите горку');
+            return;
+        }
+        
+        const response = await fetch('/constructor/template/create', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: name, park_id: currentParkId})
+        });
+        
+        if (response.ok) {
+            alert('Шаблон сохранён!');
+            document.getElementById('templateName').value = '';
+            loadTemplatesList();
+        } else {
+            alert('Ошибка сохранения шаблона');
+        }
+    }
+    
+    function editBrakePosition() {
+        alert('Редактирование тормозной позиции будет доступно в следующей версии');
+    }
 </script>
-
 {% endblock %}

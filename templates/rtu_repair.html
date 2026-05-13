@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Ремонт {{ device.model }}{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>🔧 Отправка в ремонт: {{ device.model }}</h2>
+    <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;">
+        <div><strong>Инв. номер:</strong> {{ device.inv_number or '—' }}</div>
+        <div><strong>Зав. номер:</strong> {{ device.serial_number or '—' }}</div>
+        <div><strong>Текущий статус:</strong> 
+            <span class="badge badge-{{ device.status }}">{{ device.status }}</span>
+        </div>
+    </div>
+    
+    <form method="POST" action="/rtu/device/{{ device.id }}/repair">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div>
+                <label>Тип ремонта *</label>
+                <select name="repair_type" class="form-control" required>
+                    <option value="planned">Плановый</option>
+                    <option value="capital">Капитальный</option>
+                    <option value="current">Текущий</option>
+                </select>
+            </div>
+            <div>
+                <label>Дата поступления в ремонт *</label>
+                <input type="date" name="received_date" class="form-control" required>
+            </div>
+            <div style="grid-column: span 2;">
+                <label>Причина ремонта</label>
+                <input type="text" name="reason" class="form-control">
+            </div>
+            <div style="grid-column: span 2;">
+                <label>Выявленные дефекты *</label>
+                <textarea name="defects" rows="4" class="form-control" required></textarea>
+            </div>
+        </div>
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-primary">🔧 Отправить в ремонт</button>
+            <a href="/rtu" class="btn" style="background:#e0e0e0;">❌ Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

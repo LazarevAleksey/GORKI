@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Демонтаж {{ device.model }}{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>🔧 Демонтаж с горки: {{ device.model }}</h2>
+    
+    <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;">
+        <div><strong>Инв. номер:</strong> {{ device.inv_number or '—' }}</div>
+        <div><strong>Зав. номер:</strong> {{ device.serial_number or '—' }}</div>
+        <div><strong>Текущее место:</strong> {{ device.park_name or '—' }}</div>
+        <div><strong>Тип:</strong> {{ device.type_name }}</div>
+    </div>
+    
+    <form method="POST" action="/rtu/device/{{ device.id }}/dismantle">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div>
+                <label>Причина демонтажа *</label>
+                <select name="dismantle_reason" class="form-control" required>
+                    <option value="planned_repair">Плановый ремонт</option>
+                    <option value="failure">Неисправность / отказ</option>
+                    <option value="replacement">Замена на новый</option>
+                    <option value="scrap">Списание</option>
+                </select>
+            </div>
+            <div>
+                <label>Дата демонтажа *</label>
+                <input type="date" name="dismantle_date" class="form-control" required>
+            </div>
+            <div style="grid-column: span 2;">
+                <label>Выявленные дефекты</label>
+                <textarea name="defects" rows="3" class="form-control"></textarea>
+            </div>
+            <div>
+                <label>Номер акта демонтажа</label>
+                <input type="text" name="act_number" class="form-control">
+            </div>
+            <div>
+                <label>Направление *</label>
+                <select name="destination" class="form-control" required>
+                    <option value="rtu">В РТУ (ремонт)</option>
+                    <option value="reserve">В запас</option>
+                    <option value="scrap">В списание</option>
+                </select>
+            </div>
+        </div>
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-primary">✅ Отправить</button>
+            <a href="/devices/{{ device.id }}" class="btn" style="background:#e0e0e0;">❌ Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

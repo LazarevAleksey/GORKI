@@ -11,6 +11,25 @@
         <div><strong>📍 Расположение:</strong> {{ device.location_detail or '—' }}</div>
         <div><strong>📅 Дата установки:</strong> {{ device.install_date or '—' }}</div>
         <div><strong>📅 Дата изготовления:</strong> {{ device.manufacture_date or '—' }}</div>
+        <!-- Добавьте в карточку после существующих полей -->
+        {% if device.network_number %}
+        <div><strong>🌐 Сетевой номер:</strong> {{ device.network_number }}</div>
+        {% endif %}
+        {% if device.be %}
+        <div><strong>🔢 БЕ:</strong> {{ device.be }}</div>
+        {% endif %}
+        {% if device.os6_name %}
+        <div><strong>📄 Наименование по ОС-6:</strong> {{ device.os6_name }}</div>
+        {% endif %}
+        {% if device.os6_install_year %}
+        <div><strong>📅 Год ввода по ОС-6:</strong> {{ device.os6_install_year }}</div>
+        {% endif %}
+        {% if device.os6_last_repair %}
+        <div><strong>🔧 Последний кап. ремонт по ОС-6:</strong> {{ device.os6_last_repair }}</div>
+        {% endif %}
+        {% if device.os6_last_modernization %}
+        <div><strong>🔄 Последняя модернизация по ОС-6:</strong> {{ device.os6_last_modernization }}</div>
+        {% endif %}
         <div><strong>📝 Статус:</strong> <span class="badge badge-{{ device.status }}">{{ '✅ В работе' if device.status == 'active' else '📦 В запасе' if device.status == 'reserve' else '❌ Списан' }}</span></div>
         <div><strong>📌 Примечания:</strong> {{ device.notes or '—' }}</div>
     </div>

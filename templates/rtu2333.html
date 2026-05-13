@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}Ремонтно-технологический участок{% endblock %}
+{% block extra_css %}
+<style>
+    .rtu-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    .stat-card-rtu {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .stat-card-rtu .number {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1a237e;
+    }
+    .stat-card-rtu .label {
+        color: #666;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+    .section-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .section-card h3 {
+        color: #1a237e;
+        margin-bottom: 15px;
+        border-left: 4px solid #1a237e;
+        padding-left: 15px;
+    }
+    .device-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .device-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+    .device-item:hover {
+        background: #e3f2fd;
+        transform: translateX(5px);
+    }
+    .device-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    .device-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    .badge-in_rtu { background: #e3f2fd; color: #1565c0; }
+    .badge-in_repair { background: #fff3e0; color: #e65100; }
+    .badge-ready { background: #e8f5e9; color: #2e7d32; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0;">🏭 Ремонтно-технологический участок (РТУ)</h2>
+        <div>
+            <a href="/rtu/device/add" class="btn btn-primary">➕ Добавить оборудование</a>
+        </div>
+    </div>
+    
+    <!-- Статистика -->
+    <div class="rtu-stats">
+        <div class="stat-card-rtu">
+            <div class="number">{{ in_rtu|length }}</div>
+            <div class="label">В РТУ</div>
+        </div>
+        <div class="stat-card-rtu">
+            <div class="number">{{ in_repair|length }}</div>
+            <div class="label">В ремонте</div>
+        </div>
+        <div class="stat-card-rtu">
+            <div class="number">{{ ready|length }}</div>
+            <div class="label">Готовы к выдаче</div>
+        </div>
+        <div class="stat-card-rtu">
+            <div class="number">{{ active|length }}</div>
+            <div class="label">На горках</div>
+        </div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px;">
+        <!-- Левая колонка: В РТУ -->
+        <div>
+            <div class="section-card">
+                <h3>📟 Оборудование в РТУ</h3>
+                <div class="device-list">
+                    {% for d in in_rtu %}
+                    <div class="device-item">
+                        <div class="device-info">
+                            <span>{{ d.icon or '📟' }}</span>
+                            <strong>{{ d.model or '—' }}</strong>
+                            <span style="color: #666; font-size: 12px;">{{ d.inv_number or '' }}</span>
+                            <span class="device-badge badge-in_rtu">В РТУ</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm" onclick="location.href='/rtu/device/{{ d.id }}/repair'">🔧 В ремонт</button>
+                            <button class="btn btn-sm" onclick="location.href='/rtu/device/{{ d.id }}/install'">🚀 На горку</button>
+                            <button class="btn btn-sm" onclick="location.href='/devices/{{ d.id }}'">📄</button>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div style="text-align: center; padding: 20px; color: #999;">Нет оборудования</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Правая колонка: В ремонте и Готовые -->
+        <div>
+            <div class="section-card">
+                <h3>🔧 В ремонте</h3>
+                <div class="device-list">
+                    {% for d in in_repair %}
+                    <div class="device-item">
+                        <div class="device-info">
+                            <span>{{ d.icon or '🔧' }}</span>
+                            <strong>{{ d.model or '—' }}</strong>
+                            <span style="color: #666; font-size: 12px;">{{ d.inv_number or '' }}</span>
+                            <span class="device-badge badge-in_repair">В ремонте</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm" onclick="location.href='/rtu/repair/{{ d.repair_id }}'">📋 Детали</button>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div style="text-align: center; padding: 20px; color: #999;">Нет оборудования в ремонте</div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="section-card">
+                <h3>✅ Готовы к выдаче</h3>
+                <div class="device-list">
+                    {% for d in ready %}
+                    <div class="device-item">
+                        <div class="device-info">
+                            <span>{{ d.icon or '✅' }}</span>
+                            <strong>{{ d.model or '—' }}</strong>
+                            <span style="color: #666; font-size: 12px;">{{ d.inv_number or '' }}</span>
+                            <span class="device-badge badge-ready">Отремонтирован</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm" onclick="location.href='/rtu/device/{{ d.id }}/install'">🚀 На горку</button>
+                            <button class="btn btn-sm" onclick="location.href='/devices/{{ d.id }}'">📄</button>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div style="text-align: center; padding: 20px; color: #999;">Нет готовых изделий</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

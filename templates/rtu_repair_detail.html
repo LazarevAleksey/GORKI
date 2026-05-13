@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Ремонт {{ repair.model }}{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>🔧 Заказ на ремонт #{{ repair.id }}</h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;">
+        <div><strong>Изделие:</strong> {{ repair.type_name }} {{ repair.model }}</div>
+        <div><strong>Инв. номер:</strong> {{ repair.inv_number or '—' }}</div>
+        <div><strong>Зав. номер:</strong> {{ repair.serial_number or '—' }}</div>
+        <div><strong>Тип ремонта:</strong> {{ repair.repair_type }}</div>
+        <div><strong>Причина:</strong> {{ repair.reason or '—' }}</div>
+        <div><strong>Дата поступления:</strong> {{ repair.received_date }}</div>
+        <div><strong>Статус:</strong> 
+            {% if repair.completed_date %}
+            <span class="badge badge-active">✅ Завершён {{ repair.completed_date }}</span>
+            {% else %}
+            <span class="badge badge-reserve">🟡 В работе</span>
+            {% endif %}
+        </div>
+        {% if repair.completed_date %}
+        <div><strong>Результат:</strong> {{ repair.result }}</div>
+        <div><strong>Подрядчик:</strong> {{ repair.contractor or '—' }}</div>
+        <div><strong>Акт №:</strong> {{ repair.act_number or '—' }}</div>
+        <div><strong>Стоимость:</strong> {% if repair.cost %}{{ "{:,.2f}".format(repair.cost).replace(',', ' ') }} руб.{% else %}—{% endif %}</div>
+        {% endif %}
+    </div>
+    
+    {% if not repair.completed_date %}
+    <div class="card" style="margin-bottom: 20px;">
+        <h3>✅ Завершить ремонт</h3>
+        <form method="POST" action="/rtu/repair/{{ repair.id }}/complete">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                <div>
+                    <label>Дата завершения *</label>
+                    <input type="date" name="completed_date" class="form-control" required>
+                </div>
+                <div>
+                    <label>Результат *</label>
+                    <select name="result" class="form-control" required>
+                        <option value="repaired">Отремонтирован</option>
+                        <option value="scrapped">Списан</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Подрядчик</label>
+                    <input type="text" name="contractor" class="form-control">
+                </div>
+                <div>
+                    <label>Номер акта</label>
+                    <input type="text" name="act_number" class="form-control">
+                </div>
+                <div>
+                    <label>Стоимость (руб.)</label>
+                    <input type="number" name="cost" class="form-control" step="0.01">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-top: 15px;">✅ Завершить ремонт</button>
+        </form>
+    </div>
+    {% endif %}
+    
+    <div class="card">
+        <h3>🔄 Заменённые компоненты</h3>
+        {% if replaced_parts %}
+        <table class="table">
+            <thead><tr><th>Компонент</th><th>Старый №</th><th>Новый №</th><th>Производитель</th><th>Примечание</th></tr></thead>
+            <tbody>
+                {% for p in replaced_parts %}
+                <tr>
+                    <td>{{ p.part_type }}</td>
+                    <td>{{ p.old_serial_number or '—' }}</td>
+                    <td><strong>{{ p.new_serial_number or '—' }}</strong></td>
+                    <td>{{ p.new_manufacturer or '—' }}</td>
+                    <td>{{ p.note or '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align: center; padding: 20px; color: #999;">Нет записей о заменённых компонентах</div>
+        {% endif %}
+        
+        {% if not repair.completed_date %}
+        <form method="POST" action="/rtu/repair/{{ repair.id }}/add_part" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+            <h4>➕ Добавить заменённый компонент</h4>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                <select name="part_type" class="form-control" required>
+                    <option value="пневмокамера">Пневмокамера</option>
+                    <option value="тормозная шина">Тормозная шина</option>
+                    <option value="клапан">Клапан</option>
+                    <option value="редуктор">Редуктор</option>
+                    <option value="БЭ">БЭ</option>
+                    <option value="БУК">БУК</option>
+                </select>
+                <input type="text" name="old_serial_number" placeholder="Старый заводской номер">
+                <input type="text" name="new_serial_number" placeholder="Новый заводской номер *" required>
+                <input type="text" name="new_manufacturer" placeholder="Производитель">
+                <input type="text" name="note" placeholder="Примечание" style="grid-column: span 2;">
+            </div>
+            <button type="submit" class="btn btn-sm" style="margin-top: 10px;">➕ Добавить</button>
+        </form>
+        {% endif %}
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <a href="/rtu" class="btn btn-primary">🔙 Назад в РТУ</a>
+        <a href="/devices/{{ repair.device_id }}" class="btn">📄 Карточка устройства</a>
+    </div>
+</div>
+{% endblock %}

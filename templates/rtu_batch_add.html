@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Новая партия{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>📥 Новая партия оборудования</h2>
+    <form method="POST" action="/rtu/batch/add">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div>
+                <label>Номер партии (накладной) *</label>
+                <input type="text" name="batch_number" class="form-control" style="width:100%; padding:8px;" required>
+            </div>
+            <div>
+                <label>Дата поступления *</label>
+                <input type="date" name="received_date" class="form-control" style="width:100%; padding:8px;" required>
+            </div>
+            <div>
+                <label>Поставщик</label>
+                <input type="text" name="supplier" class="form-control" style="width:100%; padding:8px;">
+            </div>
+            <div>
+                <label>Номер счёта/накладной</label>
+                <input type="text" name="invoice_number" class="form-control" style="width:100%; padding:8px;">
+            </div>
+            <div style="grid-column: span 2;">
+                <label>Примечания</label>
+                <textarea name="notes" rows="3" class="form-control" style="width:100%; padding:8px;"></textarea>
+            </div>
+        </div>
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-primary">💾 Сохранить партию</button>
+            <a href="/rtu" class="btn" style="background:#e0e0e0;">❌ Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
