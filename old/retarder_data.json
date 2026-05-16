@@ -1,0 +1,20 @@
+[
+    {
+        "avg_usage": null,
+        "be": "5067",
+        "equipment_id": 1,
+        "height_mm": 1130,
+        "install_year": null,
+        "last_repair_year": null,
+        "network_number": null,
+        "os6_install_year": null,
+        "os6_last_modernization": null,
+        "os6_last_repair": null,
+        "os6_name": null,
+        "planned_repair_year": null,
+        "residual_value": null,
+        "tor_position": null,
+        "total_operations": null,
+        "way": null
+    }
+]

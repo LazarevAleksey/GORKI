@@ -1,11 +1,92 @@
-{
-    "types": [
-        {"id": 1, "name": "Замедлитель", "icon": "🛑", "has_models": true},
-        {"id": 2, "name": "Стрелка", "icon": "🚉", "has_models": true},
-        {"id": 3, "name": "Светофор", "icon": "🚦", "has_models": false},
-        {"id": 4, "name": "Рельсовая цепь", "icon": "🔌", "has_models": false},
-        {"id": 5, "name": "ФЭУ-ИК", "icon": "📡", "has_models": false},
-        {"id": 6, "name": "РТД-С", "icon": "📡", "has_models": false},
-        {"id": 7, "name": "ИПД", "icon": "📊", "has_models": false}
-    ]
-}
+[
+    {
+        "category": null,
+        "has_passport": 1,
+        "has_serial_number": 1,
+        "icon": "🛑",
+        "id": 1,
+        "name": "Замедлитель",
+        "sort_order": 1,
+        "specific_table": "retarder_data"
+    },
+    {
+        "category": null,
+        "has_passport": 1,
+        "has_serial_number": 1,
+        "icon": "🔀",
+        "id": 2,
+        "name": "Стрелка",
+        "sort_order": 2,
+        "specific_table": "switch_data"
+    },
+    {
+        "category": null,
+        "has_passport": 1,
+        "has_serial_number": 1,
+        "icon": "🚦",
+        "id": 3,
+        "name": "Светофор",
+        "sort_order": 3,
+        "specific_table": "traffic_light_data"
+    },
+    {
+        "category": null,
+        "has_passport": 1,
+        "has_serial_number": 1,
+        "icon": "🔌",
+        "id": 4,
+        "name": "Рельсовая цепь",
+        "sort_order": 4,
+        "specific_table": "track_circuit_data"
+    },
+    {
+        "category": null,
+        "has_passport": 1,
+        "has_serial_number": 1,
+        "icon": "📡",
+        "id": 5,
+        "name": "ФЭУ-ИК",
+        "sort_order": 5,
+        "specific_table": null
+    },
+    {
+        "category": null,
+        "has_passport": 1,
+        "has_serial_number": 1,
+        "icon": "📡",
+        "id": 6,
+        "name": "РТД-С",
+        "sort_order": 6,
+        "specific_table": null
+    },
+    {
+        "category": null,
+        "has_passport": 1,
+        "has_serial_number": 1,
+        "icon": "📊",
+        "id": 7,
+        "name": "ИПД",
+        "sort_order": 7,
+        "specific_table": "ipd_data"
+    },
+    {
+        "category": "Управление",
+        "has_passport": 1,
+        "has_serial_number": 1,
+        "icon": "🎛️",
+        "id": 8,
+        "name": "Управляющая аппаратура ВЗ",
+        "sort_order": 8,
+        "specific_table": "control_gear_data"
+    },
+    {
+        "category": null,
+        "has_passport": 1,
+        "has_serial_number": 1,
+        "icon": "🔢",
+        "id": 9,
+        "name": "УФПО",
+        "sort_order": 9,
+        "specific_table": null
+    }
+]

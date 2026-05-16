@@ -1,0 +1,23 @@
+{
+    "ignored_fields": [
+        "id",
+        "equipment_id",
+        "device_id",
+        "created_at",
+        "updated_at",
+        "deleted_at",
+        "height_mm",
+        "way"
+    ],
+    "per_table": {
+        "retarder_data": [
+            "avg_usage",
+            "tor_position"
+        ],
+        "switch_data": [],
+        "traffic_light_data": [],
+        "track_circuit_data": [],
+        "ipd_data": [],
+        "control_gear_data": []
+    }
+}

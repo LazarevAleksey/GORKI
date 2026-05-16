@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Схема базы данных - Система учёта оборудования сортировочной горки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #00d4ff;
+        }
+        
+        .subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #888;
+            font-size: 14px;
+        }
+        
+        /* Легенда */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        /* Схема */
+        .schema {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        /* Группа таблиц */
+        .table-group {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .group-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid;
+            display: inline-block;
+        }
+        
+        .group-title.sprav { border-bottom-color: #4facfe; color: #4facfe; }
+        .group-title.topology { border-bottom-color: #f093fb; color: #f093fb; }
+        .group-title.equipment { border-bottom-color: #43e97b; color: #43e97b; }
+        .group-title.components { border-bottom-color: #fa709a; color: #fa709a; }
+        .group-title.specific { border-bottom-color: #fee140; color: #fee140; }
+        .group-title.history { border-bottom-color: #a18cd1; color: #a18cd1; }
+        
+        /* Сетка таблиц */
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        /* Карточка таблицы */
+        .table-card {
+            background: #0f0f23;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #2a2a4a;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .table-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border-color: #4facfe;
+        }
+        
+        .table-header {
+            background: #1a1a3e;
+            padding: 12px 15px;
+            border-bottom: 1px solid #2a2a4a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .table-icon {
+            font-size: 20px;
+        }
+        
+        .table-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .table-desc {
+            font-size: 11px;
+            color: #888;
+            margin-left: auto;
+        }
+        
+        .table-fields {
+            padding: 12px 15px;
+        }
+        
+        .field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            font-size: 13px;
+            border-bottom: 1px solid #1a1a3e;
+        }
+        
+        .field:last-child {
+            border-bottom: none;
+        }
+        
+        .field-key {
+            width: 30px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .field-key.pk {
+            color: #4facfe;
+        }
+        
+        .field-key.fk {
+            color: #f093fb;
+        }
+        
+        .field-name {
+            flex: 1;
+        }
+        
+        .field-type {
+            font-size: 10px;
+            color: #888;
+            font-family: monospace;
+        }
+        
+        /* Связи */
+        .relations {
+            margin-top: 30px;
+            background: #16213e;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .relations-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #a18cd1;
+        }
+        
+        .relations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .relation-item {
+            background: #0f0f23;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            border-left: 3px solid #a18cd1;
+        }
+        
+        .relation-from {
+            color: #4facfe;
+        }
+        
+        .relation-arrow {
+            color: #888;
+            margin: 0 8px;
+        }
+        
+        .relation-to {
+            color: #f093fb;
+        }
+        
+        hr {
+            border-color: #2a2a4a;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 700px) {
+            .tables-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗄️ Схема базы данных</h1>
+        <div class="subtitle">Система учёта оборудования сортировочной горки (РТУ)</div>
+        
+        <!-- Легенда -->
+        <div class="legend">
+            <div class="legend-item"><div class="legend-color" style="background:#4facfe;"></div><span>PK - Первичный ключ</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#f093fb;"></div><span>FK - Внешний ключ</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#43e97b;"></div><span>Основные таблицы</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#fee140;"></div><span>Специфичные данные</span></div>
+        </div>
+        
+        <div class="schema">
+            <!-- ГРУППА 1: СПРАВОЧНИКИ -->
+            <div class="table-group">
+                <div class="group-title sprav">📚 СПРАВОЧНИКИ</div>
+                <div class="tables-grid">
+                    <!-- equipment_types -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">📋</span>
+                            <span class="table-name">equipment_types</span>
+                            <span class="table-desc">типы оборудования</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">name</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">category</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">icon</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">has_passport</span><span class="field-type">BOOLEAN</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">has_serial_number</span><span class="field-type">BOOLEAN</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">sort_order</span><span class="field-type">INTEGER</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- equipment_models -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">🏭</span>
+                            <span class="table-name">equipment_models</span>
+                            <span class="table-desc">модели оборудования</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">type_id</span><span class="field-type">→ equipment_types</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">name</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">specs</span><span class="field-type">TEXT(JSON)</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">manual_file</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">certificate_file</span><span class="field-type">TEXT</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- component_types -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">🔧</span>
+                            <span class="table-name">component_types</span>
+                            <span class="table-desc">типы компонентов</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">name</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">category</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">parent_type_id</span><span class="field-type">→ component_types</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">has_children</span><span class="field-type">BOOLEAN</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">icon</span><span class="field-type">TEXT</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- component_models -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">⚙️</span>
+                            <span class="table-name">component_models</span>
+                            <span class="table-desc">модели компонентов</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">component_type_id</span><span class="field-type">→ component_types</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">name</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">params</span><span class="field-type">TEXT(JSON)</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">manual_file</span><span class="field-type">TEXT</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ГРУППА 2: ТОПОЛОГИЯ ГОРКИ -->
+            <div class="table-group">
+                <div class="group-title topology">🗺️ ТОПОЛОГИЯ ГОРКИ</div>
+                <div class="tables-grid">
+                    <!-- parks -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">🏞️</span>
+                            <span class="table-name">parks</span>
+                            <span class="table-desc">горки</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">name</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">station</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">class</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">num_tracks</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">control_system</span><span class="field-type">TEXT</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- section_types -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">🛤️</span>
+                            <span class="table-name">section_types</span>
+                            <span class="table-desc">типы участков</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">name</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">code</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">sort_order</span><span class="field-type">INTEGER</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- zone_types -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">🔍</span>
+                            <span class="table-name">zone_types</span>
+                            <span class="table-desc">типы зон</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">name</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">code</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">sort_order</span><span class="field-type">INTEGER</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- track_sections -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">🛣️</span>
+                            <span class="table-name">track_sections</span>
+                            <span class="table-desc">участки пути</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">park_id</span><span class="field-type">→ parks</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">section_type_id</span><span class="field-type">→ section_types</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">zone_type_id</span><span class="field-type">→ zone_types</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">name, code</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">is_switch_section</span><span class="field-type">BOOLEAN</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">length_m</span><span class="field-type">REAL</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">sort_order</span><span class="field-type">INTEGER</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- brake_positions -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">🛑</span>
+                            <span class="table-name">brake_positions</span>
+                            <span class="table-desc">тормозные позиции</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">track_section_id</span><span class="field-type">→ track_sections</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">position_number</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">position_type</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">max_speed_kmh</span><span class="field-type">REAL</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">num_retarders</span><span class="field-type">INTEGER</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ГРУППА 3: ОСНОВНОЕ ОБОРУДОВАНИЕ -->
+            <div class="table-group">
+                <div class="group-title equipment">🖥️ ОСНОВНОЕ ОБОРУДОВАНИЕ</div>
+                <div class="tables-grid">
+                    <!-- equipment -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">📟</span>
+                            <span class="table-name">equipment</span>
+                            <span class="table-desc">все оборудование</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">type_id</span><span class="field-type">→ equipment_types</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">park_id</span><span class="field-type">→ parks</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">model_id</span><span class="field-type">→ equipment_models</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">inv_number</span><span class="field-type">TEXT(UNIQUE)</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">serial_number</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">manufacturer</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">manufacture_date</span><span class="field-type">DATE</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">status</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">passport_file</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">notes</span><span class="field-type">TEXT</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- equipment_location -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">📍</span>
+                            <span class="table-name">equipment_location</span>
+                            <span class="table-desc">местоположение</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">equipment_id</span><span class="field-type">→ equipment</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">track_section_id</span><span class="field-type">→ track_sections</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">brake_position_id</span><span class="field-type">→ brake_positions</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">tor_position</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">mount_date</span><span class="field-type">DATE</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">dismantle_date</span><span class="field-type">DATE</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ГРУППА 4: СПЕЦИФИЧНЫЕ ДАННЫЕ -->
+            <div class="table-group">
+                <div class="group-title specific">⚡ СПЕЦИФИЧНЫЕ ДАННЫЕ</div>
+                <div class="tables-grid">
+                    <!-- retarder_data -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">🛑</span>
+                            <span class="table-name">retarder_data</span>
+                            <span class="table-desc">данные замедлителей</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk fk">PK/FK</span><span class="field-name">equipment_id</span><span class="field-type">→ equipment</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">height_mm</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">way</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">be</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">network_number</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">install_year</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">total_operations</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">planned_repair_year</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">residual_value</span><span class="field-type">REAL</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- switches (через components) -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">🚉</span>
+                            <span class="table-name">switches</span>
+                            <span class="table-desc">стрелки</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk fk">PK/FK</span><span class="field-name">id</span><span class="field-type">→ components</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">switch_number</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">switch_type</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">rail_type</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">has_electric_drive</span><span class="field-type">BOOLEAN</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">has_switch_heating</span><span class="field-type">BOOLEAN</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ГРУППА 5: КОМПОНЕНТЫ -->
+            <div class="table-group">
+                <div class="group-title components">🔧 КОМПОНЕНТЫ (иерархия)</div>
+                <div class="tables-grid">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">🧩</span>
+                            <span class="table-name">components</span>
+                            <span class="table-desc">узлы и детали</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">equipment_id</span><span class="field-type">→ equipment</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">parent_component_id</span><span class="field-type">→ components</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">component_type_id</span><span class="field-type">→ component_types</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">model_id</span><span class="field-type">→ component_models</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">serial_number</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">manufacturer</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">params</span><span class="field-type">TEXT(JSON)</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">status</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">install_date</span><span class="field-type">DATE</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ГРУППА 6: ИСТОРИЯ И ПОЛЬЗОВАТЕЛИ -->
+            <div class="table-group">
+                <div class="group-title history">📜 ИСТОРИЯ И ПОЛЬЗОВАТЕЛИ</div>
+                <div class="tables-grid">
+                    <!-- repair_history -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">🔧</span>
+                            <span class="table-name">repair_history</span>
+                            <span class="table-desc">история ремонтов</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">equipment_id</span><span class="field-type">→ equipment</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">repair_type</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">defects</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">received_date</span><span class="field-type">DATE</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">completed_date</span><span class="field-type">DATE</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">contractor</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">cost</span><span class="field-type">REAL</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- movement_history -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">🔄</span>
+                            <span class="table-name">movement_history</span>
+                            <span class="table-desc">перемещения</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">equipment_id</span><span class="field-type">→ equipment</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">from_status</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">to_status</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">movement_date</span><span class="field-type">DATE</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">act_number</span><span class="field-type">TEXT</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- equipment_files -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">📎</span>
+                            <span class="table-name">equipment_files</span>
+                            <span class="table-desc">файлы документов</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">equipment_id</span><span class="field-type">→ equipment</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">file_name</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">file_path</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">file_type</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">description</span><span class="field-type">TEXT</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- users -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">👤</span>
+                            <span class="table-name">users</span>
+                            <span class="table-desc">пользователи</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key pk">PK</span><span class="field-name">id</span><span class="field-type">INTEGER</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">username</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">full_name</span><span class="field-type">TEXT</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">role</span><span class="field-type">TEXT</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- user_favorites -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <span class="table-icon">⭐</span>
+                            <span class="table-name">user_favorites</span>
+                            <span class="table-desc">избранное</span>
+                        </div>
+                        <div class="table-fields">
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">user_id</span><span class="field-type">→ users</span></div>
+                            <div class="field"><span class="field-key fk">FK</span><span class="field-name">equipment_id</span><span class="field-type">→ equipment</span></div>
+                            <div class="field"><span class="field-key"></span><span class="field-name">added_at</span><span class="field-type">TIMESTAMP</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- СВЯЗИ МЕЖДУ ТАБЛИЦАМИ -->
+        <div class="relations">
+            <div class="relations-title">🔗 Основные связи (Foreign Keys)</div>
+            <div class="relations-grid">
+                <div class="relation-item">
+                    <span class="relation-from">equipment_models</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">equipment_types</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">type_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">equipment</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">equipment_types</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">type_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">equipment</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">parks</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">park_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">equipment</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">equipment_models</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">model_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">equipment_location</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">equipment</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">equipment_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">equipment_location</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">track_sections</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">track_section_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">equipment_location</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">brake_positions</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">brake_position_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">track_sections</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">parks</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">park_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">track_sections</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">section_types</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">section_type_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">brake_positions</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">track_sections</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">track_section_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">retarder_data</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">equipment</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">equipment_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">components</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">equipment</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">equipment_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">components</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">component_types</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">component_type_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">components</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">components</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">parent_component_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">repair_history</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">equipment</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">equipment_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">movement_history</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">equipment</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">equipment_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">equipment_files</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">equipment</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">equipment_id → id</div>
+                </div>
+                <div class="relation-item">
+                    <span class="relation-from">user_favorites</span>
+                    <span class="relation-arrow">→</span>
+                    <span class="relation-to">equipment</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">equipment_id → id</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- СТАТИСТИКА ТАБЛИЦ -->
+        <div style="margin-top: 30px; text-align: center; color: #666; font-size: 12px;">
+            Всего таблиц: 18 | Справочников: 4 | Топология: 5 | Оборудование: 2 | Специфичные: 2 | Компоненты: 1 | История: 4
+        </div>
+    </div>
+</body>
+</html>

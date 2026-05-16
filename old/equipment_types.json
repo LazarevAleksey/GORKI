@@ -1,0 +1,11 @@
+{
+    "types": [
+        {"id": 1, "name": "Замедлитель", "icon": "🛑", "has_models": true},
+        {"id": 2, "name": "Стрелка", "icon": "🚉", "has_models": true},
+        {"id": 3, "name": "Светофор", "icon": "🚦", "has_models": false},
+        {"id": 4, "name": "Рельсовая цепь", "icon": "🔌", "has_models": false},
+        {"id": 5, "name": "ФЭУ-ИК", "icon": "📡", "has_models": false},
+        {"id": 6, "name": "РТД-С", "icon": "📡", "has_models": false},
+        {"id": 7, "name": "ИПД", "icon": "📊", "has_models": false}
+    ]
+}

@@ -126,14 +126,69 @@ async def rtu_home(request: Request):
         "unique_parks": unique_parks
     })
 
+# @router.get("/device/add", response_class=HTMLResponse)
+# async def add_device_form(request: Request):
+#     """Форма добавления оборудования в РТУ"""
+#     conn = get_db()
+#     cursor = conn.cursor()
+#     # Загружаем данные из JSON файлов
+#     # equipment_types = load_equipment_types()
+#     cursor.execute("SELECT id, name, icon, specific_table FROM equipment_types ORDER BY name")
+#     equipment_types = [{
+#         "id": row[0], 
+#         "name": row[1], 
+#         "icon": row[2] or '',
+#         "specific_table": row[3] or ''   # ← ДОБАВИТЬ
+#         } for row in cursor.fetchall()]
+#     retarder_models = load_retarder_models()
+#     switch_models = load_switch_models()
+    
+#     return templates.TemplateResponse("rtu_device_add.html", {
+#         "request": request,
+#         "equipment_types": equipment_types,
+#         "retarder_models": retarder_models,
+#         "switch_models": switch_models
+#     })
+
+
 @router.get("/device/add", response_class=HTMLResponse)
 async def add_device_form(request: Request):
     """Форма добавления оборудования в РТУ"""
+    conn = get_db()
+    cursor = conn.cursor()
     
-    # Загружаем данные из JSON файлов
-    equipment_types = load_equipment_types()
-    retarder_models = load_retarder_models()
-    switch_models = load_switch_models()
+    # 1. Типы оборудования из БД
+    cursor.execute("SELECT id, name, icon, specific_table FROM equipment_types ORDER BY name")
+    equipment_types = [{
+        "id": row[0], 
+        "name": row[1], 
+        "icon": row[2] or '',
+        "specific_table": row[3] or ''
+    } for row in cursor.fetchall()]
+    
+    # 2. Модели замедлителей из БД (из таблицы equipment_models)
+    cursor.execute("""
+        SELECT id, name, height_mm, manufacturer, emoji 
+        FROM equipment_models 
+        WHERE type_id = (SELECT id FROM equipment_types WHERE name = 'Замедлитель')
+        ORDER BY name, height_mm
+    """)
+    retarder_models = [{
+        "id": row[0],
+        "name": row[1],
+        "height_mm": row[2],
+        "manufacturer": row[3] or '',
+        "emoji": row[4] or ''
+    } for row in cursor.fetchall()]
+    
+    # 3. Модели стрелок (если есть таблица - берите из неё, пока статически)
+    switch_models = [
+        {"id": 1, "name": "Р65 1/9"},
+        {"id": 2, "name": "Р65 1/11"},
+        {"id": 3, "name": "Р50 1/9"}
+    ]
+    
+    conn.close()
     
     return templates.TemplateResponse("rtu_device_add.html", {
         "request": request,
@@ -142,72 +197,6 @@ async def add_device_form(request: Request):
         "switch_models": switch_models
     })
 
-# @router.post("/device/add")
-# async def add_device(
-#     equipment_type_id: int = Form(...),
-#     model_id: int = Form(None),
-#     model_name: str = Form(None),
-#     serial_number: str = Form(None),
-#     inv_number: str = Form(None),
-#     height_mm: int = Form(None),
-#     manufacturer: str = Form(None),
-#     manufacture_date: str = Form(None),
-#     supplier: str = Form(None),
-#     notes: str = Form(""),
-#     network_number: str = Form(None),
-#     be: str = Form("5067"),
-#     os6_name: str = Form(None),
-#     os6_install_year: int = Form(None),
-#     os6_last_repair: int = Form(None),
-#     os6_last_modernization: int = Form(None)
-# ):
-#     """Добавление оборудования в РТУ"""
-#     conn = get_db()
-#     cursor = conn.cursor()
-    
-#     # Если выбран замедлитель и есть model_id, получаем данные из модели
-#     model_name_final = model_name
-#     height_mm_final = height_mm
-#     manufacturer_final = manufacturer or supplier
-    
-#     if equipment_type_id == 1 and model_id:  # Замедлитель
-#         cursor.execute("SELECT name, specs FROM equipment_models WHERE id = ?", (model_id,))
-#         model_data = cursor.fetchone()
-#         if model_data:
-#             model_name_final = model_data[0]
-#             import json
-#             specs = json.loads(model_data[1]) if model_data[1] else {}
-#             height_mm_final = specs.get('height_mm', height_mm)
-    
-#     try:
-#         cursor.execute("""
-#             INSERT INTO equipment (
-#                 type_id, model, serial_number, inv_number, manufacturer,
-#                 manufacture_date, status, notes
-#             ) VALUES (?, ?, ?, ?, ?, ?, 'in_rtu', ?)
-#         """, (equipment_type_id, model_name_final, serial_number, inv_number,
-#               manufacturer_final, manufacture_date, notes))
-        
-#         equipment_id = cursor.lastrowid
-        
-#         # Если это замедлитель, создаём запись в retarder_data
-#         if equipment_type_id == 1:  # Замедлитель
-#             cursor.execute("""
-#                 INSERT INTO retarder_data (
-#                     equipment_id, height_mm, be, network_number,
-#                     os6_name, os6_install_year, os6_last_repair, os6_last_modernization
-#                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-#             """, (equipment_id, height_mm_final, be, network_number,
-#                   os6_name, os6_install_year, os6_last_repair, os6_last_modernization))
-        
-#         conn.commit()
-#         return RedirectResponse(url=f"/devices/{equipment_id}", status_code=303)
-#     except Exception as e:
-#         conn.rollback()
-#         print(f"Ошибка: {e}")
-#         raise HTTPException(status_code=400, detail=f"Ошибка: {e}")
-#     finally:
-#         conn.close()
 
 @router.post("/device/add")
 async def add_device(
