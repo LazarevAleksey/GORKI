@@ -64,28 +64,29 @@ async def get_table_fields(table_name: str):
     conn.close()
     return {"fields": fields, "table_name": table_name}
 
-# routers/api.py - добавить новый маршрут
-
 # routers/api.py - добавить маршрут
 
 @router.get("/equipment-model-fields")
 async def get_equipment_model_fields():
-    """Получить структуру таблицы equipment_models для динамического отображения"""
+    """Получить структуру таблицы equipment_models для динамической формы"""
     conn = get_db()
     cursor = conn.cursor()
     
     cursor.execute("PRAGMA table_info(equipment_models)")
     columns = cursor.fetchall()
     
+    # Поля, которые НЕ показываем в форме
+    excluded_fields = ['id', 'type_id', 'created_at', 'manual_file', 'certificate_file']
+    
     fields = []
     for col in columns:
-        # Пропускаем служебные поля
-        if col[1] in ('id', 'type_id', 'created_at'):
+        if col[1] in excluded_fields:
             continue
         fields.append({
             "name": col[1],
             "type": col[2],
-            "label": get_field_labels(col[1])
+            "nullable": col[3] == 1,
+            "default": col[4]
         })
     
     conn.close()

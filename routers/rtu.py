@@ -168,17 +168,16 @@ async def add_device_form(request: Request):
     
     # 2. Модели замедлителей из БД (из таблицы equipment_models)
     cursor.execute("""
-        SELECT id, name, height_mm, manufacturer, emoji 
+        SELECT id, name, manufacturer, emoji 
         FROM equipment_models 
         WHERE type_id = (SELECT id FROM equipment_types WHERE name = 'Замедлитель')
-        ORDER BY name, height_mm
+        ORDER BY name
     """)
     retarder_models = [{
         "id": row[0],
         "name": row[1],
-        "height_mm": row[2],
-        "manufacturer": row[3] or '',
-        "emoji": row[4] or ''
+        "manufacturer": row[2] or '',
+        "emoji": row[3] or ''
     } for row in cursor.fetchall()]
     
     # 3. Модели стрелок (если есть таблица - берите из неё, пока статически)

@@ -21,6 +21,26 @@
         margin-bottom: 10px;
         color: #1a237e;
     }
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        max-width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
 </style>
 {% endblock %}
 
@@ -38,6 +58,28 @@
                         <option value="{{ et.id }}" data-name="{{ et.name }}">{{ et.icon }} {{ et.name }}</option>
                     {% endfor %}
                 </select>
+            </div>
+            <div>
+                <label>Модель *</label>
+                <select name="model" id="modelSelect" class="form-control" required>
+                    <option value="">-- сначала выберите тип --</option>
+                </select>
+            </div>
+            <!-- Модальное окно для создания новой модели -->
+            <div id="newModelModal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                        <h3>➕ Создание новой модели</h3>
+                        <button onclick="closeNewModelModal()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+                    </div>
+                    
+                    <div id="newModelFieldsContainer" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;"></div>
+                    
+                    <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                        <button type="button" id="saveNewModelBtn" class="btn btn-primary" style="background: #2e7d32;">💾 Сохранить модель</button>
+                        <button type="button" onclick="closeNewModelModal()" class="btn" style="background: #e0e0e0;">❌ Отмена</button>
+                    </div>
+                </div>
             </div>
             <!-- Контейнер для динамических полей (вставить после основных полей) -->
             <div id="dynamicFieldsContainer"></div>
@@ -57,6 +99,7 @@
     let fieldLabels = {};  // Будет загружено из API
     let ignoredFields = { global: [], perTable: {} };
     let modelFields = [];  // ← поля модели
+    
     
     // Соответствие типов данных SQLite и HTML input
     const typeMapping = {
@@ -119,133 +162,6 @@
         return fieldName.replace(/_/g, ' ').toUpperCase();
     }
     
-        // Загрузка данных выбранной модели
-    // async function loadModelData(modelId) {
-    //     if (!modelId) return null;
-        
-    //     try {
-    //         const response = await fetch(`/api/retarder-model/${modelId}`);
-    //         if (response.ok) {
-    //             return await response.json();
-    //         }
-    //     } catch (err) {
-    //         console.error('Ошибка загрузки модели:', err);
-    //     }
-    //     return null;
-    // }   
-
-    // // Создание HTML для полей модели
-    // function renderModelFields(modelData) {
-    //     if (!modelFields.fields || modelFields.fields.length === 0) return;
-        
-    //     const container = document.getElementById('modelFieldsContainer');
-    //     if (!container) return;
-        
-    //     container.innerHTML = '';
-    //     container.style.display = 'grid';
-    //     container.style.gridTemplateColumns = 'repeat(2, 1fr)';
-    //     container.style.gap = '15px';
-        
-    //     for (const field of modelFields.fields) {
-    //         const fieldDiv = document.createElement('div');
-    //         fieldDiv.style.marginBottom = '15px';
-            
-    //         const label = document.createElement('label');
-    //         label.textContent = field.label || field.name.replace(/_/g, ' ').toUpperCase();
-    //         label.style.display = 'block';
-    //         label.style.marginBottom = '5px';
-    //         label.style.fontWeight = '500';
-    //         fieldDiv.appendChild(label);
-            
-    //         const input = document.createElement('input');
-    //         input.type = field.type === 'INTEGER' ? 'number' : 'text';
-    //         input.name = `model_${field.name}`;
-    //         input.id = `model_field_${field.name}`;
-    //         input.className = 'form-control';
-    //         input.style.width = '100%';
-    //         input.style.padding = '8px';
-    //         input.readOnly = true;  // Поля модели только для чтения
-    //         input.style.background = '#f5f5f5';
-            
-    //         if (modelData && modelData[field.name]) {
-    //             input.value = modelData[field.name];
-    //         }
-            
-    //         fieldDiv.appendChild(input);
-    //         container.appendChild(fieldDiv);
-    //     }
-    // }
-    
-    // // Загрузка данных модели
-    // async function loadModelData(modelId) {
-    //     if (!modelId) return null;
-        
-    //     try {
-    //         const response = await fetch(`/api/retarder-model/${modelId}`);
-    //         if (response.ok) {
-    //             const modelData = await response.json();
-    //             // Отображаем поля модели
-    //             renderModelFields({ fields: modelFields.fields, data: modelData });
-    //             return modelData;
-    //         }
-    //     } catch (err) {
-    //         console.error('Ошибка загрузки модели:', err);
-    //     }
-    //     return null;
-    // }
-    
-    // // Заполнение специфичных полей из данных модели
-    // function fillSpecificFieldsFromModel(modelData, specificTable) {
-    //     if (!modelData) return;
-        
-    //     // Динамически заполняем поля в зависимости от таблицы
-    //     const fieldMapping = {
-    //         'retarder_data': ['height_mm', 'manufacturer']
-    //         // можно добавить другие таблицы
-    //     };
-        
-    //     const fieldsToFill = fieldMapping[specificTable] || [];
-        
-    //     for (const fieldName of fieldsToFill) {
-    //         const input = document.getElementById(`field_${fieldName}`);
-    //         const modelValue = modelData[fieldName];
-    //         if (input && modelValue && !input.value) {
-    //             input.value = modelValue;
-    //             // Добавляем визуальную отметку, что поле заполнено из модели
-    //             input.style.borderLeft = '3px solid #4caf50';
-    //         }
-    //     }
-    // }
-
-    // // При выборе модели
-    // document.getElementById('modelSelect').addEventListener('change', async function() {
-    //     const selectedOption = this.options[this.selectedIndex];
-    //     const modelId = selectedOption.value;
-        
-    //     if (modelId && modelId !== '__custom__') {
-    //         // Сохраняем model_id
-    //         let modelIdInput = document.querySelector('input[name="model_id"]');
-    //         if (!modelIdInput) {
-    //             modelIdInput = document.createElement('input');
-    //             modelIdInput.type = 'hidden';
-    //             modelIdInput.name = 'model_id';
-    //             document.getElementById('deviceForm').appendChild(modelIdInput);
-    //         }
-    //         modelIdInput.value = modelId;
-            
-    //         // Загружаем данные модели
-    //         const modelData = await loadModelData(parseInt(modelId));
-            
-    //         // Получаем текущую таблицу специфичных полей
-    //         const selectedId = parseInt(document.getElementById('equipmentType').value);
-    //         const selectedType = equipmentTypes.find(t => t.id === selectedId);
-            
-    //         if (selectedType && selectedType.specific_table) {
-    //             fillSpecificFieldsFromModel(modelData, selectedType.specific_table);
-    //         }
-    //     }
-    // });
-
     // Загрузка полей для выбранного типа
     async function loadFieldsForType(specificTable) {
         if (!specificTable) return;
@@ -341,6 +257,245 @@
         updateModelList();
     }
     
+    // Загрузка данных модели по ID
+    async function loadModelData(modelId) {
+        if (!modelId) return null;
+        try {
+            const response = await fetch(`/api/retarder-model/${modelId}`);
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (err) {
+            console.error('Ошибка загрузки модели:', err);
+        }
+        return null;
+    }
+
+    // Заполнение специфичных полей из данных модели
+    function fillSpecificFieldsFromModel(modelData, specificTable) {
+        if (!modelData) return;
+        
+        const fieldMapping = {
+            'retarder_data': ['manufacturer']
+        };
+        
+        const fieldsToFill = fieldMapping[specificTable] || [];
+        
+        for (const fieldName of fieldsToFill) {
+            const input = document.getElementById(`field_${fieldName}`);
+            const modelValue = modelData[fieldName];
+            if (input && modelValue && !input.value) {
+                input.value = modelValue;
+                input.style.borderLeft = '3px solid #4caf50';
+            }
+        }
+    }
+
+    // Обновление списка моделей
+    function updateModelList() {
+        const typeSelect = document.getElementById('equipmentType');
+        const modelSelect = document.getElementById('modelSelect');
+        
+        if (!typeSelect || !modelSelect) return;
+        
+        const selectedId = parseInt(typeSelect.value);
+        const selectedType = equipmentTypes.find(t => t.id === selectedId);
+        
+        if (!selectedType || selectedType.name !== 'Замедлитель') {
+            modelSelect.innerHTML = '<option value="">-- выберите модель --</option>';
+            modelSelect.style.display = 'none';
+            return;
+        }
+        
+        modelSelect.style.display = 'block';
+        modelSelect.innerHTML = '<option value="">-- выберите модель --</option>';
+        
+        for (const model of retarderModels) {
+            const option = document.createElement('option');
+            option.value = model.id;
+            const emoji = model.emoji ? `${model.emoji} ` : '';
+            option.textContent = `${emoji}${model.name} - ${model.manufacturer}`;
+            modelSelect.appendChild(option);
+        }
+        
+        // Добавляем разделитель и опцию создания новой модели
+        const separator = document.createElement('option');
+        separator.disabled = true;
+        separator.textContent = '──────────';
+        modelSelect.appendChild(separator);
+        
+        const newOption = document.createElement('option');
+        newOption.value = '__new__';
+        newOption.textContent = '➕ Создать новую модель...';
+        newOption.style.color = '#2e7d32';
+        newOption.style.fontWeight = 'bold';
+        modelSelect.appendChild(newOption);
+    }
+
+    // Загрузка полей модели
+    async function loadModelFields() {
+        try {
+            const response = await fetch('/api/equipment-model-fields');
+            if (response.ok) {
+                const data = await response.json();
+                modelFields = data.fields;
+                console.log('Поля модели загружены:', modelFields);
+            }
+        } catch (err) {
+            console.error('Ошибка загрузки полей модели:', err);
+        }
+    }
+
+    // Отображение формы создания новой модели
+    function showNewModelForm() {
+        const container = document.getElementById('newModelFieldsContainer');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        for (const field of modelFields) {
+            const fieldDiv = document.createElement('div');
+            fieldDiv.style.marginBottom = '15px';
+            
+            const label = document.createElement('label');
+            label.textContent = getFieldLabel(field.name);
+            label.style.display = 'block';
+            label.style.marginBottom = '5px';
+            label.style.fontWeight = '500';
+            fieldDiv.appendChild(label);
+            
+            let input;
+            const inputType = typeMapping[field.type] || 'text';
+            
+            if (field.name === 'emoji') {
+                input = document.createElement('input');
+                input.type = 'text';
+                input.maxLength = 2;
+                input.placeholder = '🟢';
+            } else if (field.type === 'INTEGER') {
+                input = document.createElement('input');
+                input.type = 'number';
+            } else if (field.type === 'REAL') {
+                input = document.createElement('input');
+                input.type = 'number';
+                input.step = '0.01';
+            } else {
+                input = document.createElement('input');
+                input.type = inputType;
+            }
+            
+            input.name = field.name;
+            input.id = `new_model_${field.name}`;
+            input.className = 'form-control';
+            input.style.width = '100%';
+            input.style.padding = '8px';
+            
+            if (field.default) input.value = field.default;
+            
+            fieldDiv.appendChild(input);
+            container.appendChild(fieldDiv);
+        }
+        
+        document.getElementById('newModelModal').style.display = 'flex';
+    }
+
+    function closeNewModelModal() {
+        document.getElementById('newModelModal').style.display = 'none';
+        // Очищаем поля
+        for (const field of modelFields) {
+            const input = document.getElementById(`new_model_${field.name}`);
+            if (input) input.value = '';
+        }
+    }
+
+    // Сохранение новой модели
+    async function saveNewModel() {
+        const modelData = {};
+        
+        for (const field of modelFields) {
+            const input = document.getElementById(`new_model_${field.name}`);
+            if (input && input.value) {
+                let value = input.value;
+                if (field.type === 'INTEGER') value = parseInt(value);
+                if (field.type === 'REAL') value = parseFloat(value);
+                modelData[field.name] = value;
+            }
+        }
+        
+        if (!modelData.name) {
+            alert('Введите название модели');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/retarder-models/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(modelData)
+            });
+            
+            if (response.ok) {
+                const createdModel = await response.json();
+                alert(`✅ Модель "${modelData.name}" создана!`);
+                
+                // Добавляем новую модель в список
+                const newOption = document.createElement('option');
+                newOption.value = createdModel.id;
+                newOption.textContent = `${createdModel.emoji || ''} ${createdModel.name} - ${createdModel.manufacturer || '—'}`;
+                
+                const modelSelect = document.getElementById('modelSelect');
+                const separatorIndex = modelSelect.options.length - 2;
+                modelSelect.insertBefore(newOption, modelSelect.options[separatorIndex]);
+                
+                modelSelect.value = createdModel.id;
+                modelSelect.dispatchEvent(new Event('change'));
+                
+                closeNewModelModal();
+            } else {
+                const error = await response.json();
+                alert(`❌ Ошибка: ${error.detail || 'Не удалось создать модель'}`);
+            }
+        } catch (err) {
+            alert('❌ Ошибка сети');
+        }
+    }
+    
+    // Обработчик выбора модели
+    document.getElementById('modelSelect').addEventListener('change', async function() {
+        const selectedValue = this.value;
+        
+        if (selectedValue === '__new__') {
+            // Показываем динамическую форму создания модели
+            showNewModelForm();
+            this.value = '';
+        } else if (selectedValue && selectedValue !== '__custom__') {
+            closeNewModelModal();
+            
+            // Загружаем данные модели
+            const modelData = await loadModelData(parseInt(selectedValue));
+            
+            // Сохраняем model_id
+            let modelIdInput = document.querySelector('input[name="model_id"]');
+            if (!modelIdInput) {
+                modelIdInput = document.createElement('input');
+                modelIdInput.type = 'hidden';
+                modelIdInput.name = 'model_id';
+                document.getElementById('deviceForm').appendChild(modelIdInput);
+            }
+            modelIdInput.value = selectedValue;
+            
+            // Получаем текущую таблицу специфичных полей
+            const selectedId = parseInt(document.getElementById('equipmentType').value);
+            const selectedType = equipmentTypes.find(t => t.id === selectedId);
+            
+            if (selectedType && selectedType.specific_table && modelData) {
+                fillSpecificFieldsFromModel(modelData, selectedType.specific_table);
+            }
+        }
+    });
+
+    // Привязываем кнопки
+    document.getElementById('saveNewModelBtn').addEventListener('click', saveNewModel);
     // Привязываем обработчики
     document.getElementById('equipmentType').addEventListener('change', updateFieldsByType);
     
@@ -348,7 +503,8 @@
     async function init() {
         await loadIgnoredFields();   
         await loadFieldLabels();
-        await loadModelFields();  // ← загружаем поля модели
+        await loadModelFields();     // Загружаем поля модели
+        await loadModelData();       // Загружаем данные модели (если нужно)
         await updateFieldsByType();
     }
 
